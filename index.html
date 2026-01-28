@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campbell Moda Fitness | Estilo e Performance</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="top-bar">
+        <p>🚚 Frete Grátis acima de R$ 299,00 | 💳 10% OFF no PIX</p>
+    </div>
+
+    <header id="header">
+        <div class="container header-flex">
+            <div class="logo">CAMPBELL<span>.FIT</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#lancamentos">Lançamentos</a></li>
+                    <li><a href="#conjuntos">Conjuntos</a></li>
+                    <li><a href="#tops">Tops</a></li>
+                    <li><a href="#leggings">Leggings</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="cart-count">0</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Sua Melhor Versão <br>Começa no Look</h1>
+            <p>Tecnologia de compressão inteligente e design que valoriza suas curvas.</p>
+            <a href="#lancamentos" class="cta-button">Ver Coleção Nova</a>
+        </div>
+    </section>
+
+    <section class="features container">
+        <div class="feature-item"><i class="fa-solid fa-eye-slash"></i><h3>Zero Transparência</h3><p>Treine agachamento sem medo.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-feather"></i><h3>Tecido Tecnológico</h3><p>Secagem rápida e toque gelado.</p></div>
+        <div class="feature-item"><i class="fa-solid fa-rotate"></i><h3>Troca Fácil</h3><p>1ª troca gratuita em até 7 dias.</p></div>
+    </section>
+
+    <main class="container" id="lancamentos">
+        <div class="section-title"><h2>🔥 Destaques da Semana</h2><div class="line"></div></div>
+        <div id="grid-destaques" class="product-grid"></div>
+    </main>
+
+    <section class="container" id="conjuntos" style="padding-top: 60px;">
+        <div class="section-title"><h2>Nossos Conjuntos</h2><div class="line"></div></div>
+        <div id="grid-conjuntos" class="product-grid"></div>
+    </section>
+
+    <section class="container" id="tops" style="padding-top: 60px;">
+        <div class="section-title"><h2>Tops Fitness</h2><div class="line"></div></div>
+        <div id="grid-tops" class="product-grid"></div>
+    </section>
+
+    <section class="container" id="leggings" style="padding-top: 60px;">
+        <div class="section-title"><h2>Leggings & Calças</h2><div class="line"></div></div>
+        <div id="grid-leggings" class="product-grid"></div>
+    </section>
+
+    <div class="floating-buttons">
+        <a href="https://www.instagram.com/campbellmodafitness/" target="_blank" class="float-btn insta-btn">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/5532984192045?text=Ol%C3%A1%20Campbell!%20Vim%20pelo%20site%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida." target="_blank" class="float-btn whats-btn">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Seu Carrinho</h3>
+            <button onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="cart-body">
+            <div id="cart-items" class="cart-items"></div>
+
+            <div class="cart-form">
+                <h4><i class="fa-regular fa-user"></i> Seus Dados</h4>
+                <input type="text" id="client-name" placeholder="Nome Completo">
+                
+                <h4><i class="fa-solid fa-map-location-dot"></i> Entrega</h4>
+                <div class="form-row">
+                    <input type="tel" id="client-cep" placeholder="CEP" maxlength="9" onblur="buscarCep()">
+                    <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" class="cep-link">Não sei meu CEP</a>
+                </div>
+                
+                <div class="form-row">
+                    <input type="text" id="client-street" placeholder="Rua/Av" disabled>
+                    <input type="text" id="client-number" placeholder="Nº" style="width: 80px;">
+                </div>
+                
+                <input type="text" id="client-comp" placeholder="Complemento">
+                
+                <div class="form-row">
+                    <input type="text" id="client-neighborhood" placeholder="Bairro" disabled>
+                    <input type="text" id="client-city" placeholder="Cidade" disabled>
+                    <input type="text" id="client-uf" placeholder="UF" style="width: 60px;" disabled>
+                </div>
+                
+                <h4><i class="fa-regular fa-credit-card"></i> Pagamento</h4>
+                <select id="client-payment">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="PIX (10% OFF)">PIX (10% OFF)</option>
+                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <div class="checkout-notice">
+                <i class="fa-brands fa-whatsapp"></i>
+                <p>Você será redirecionada para o WhatsApp para confirmar.</p>
+            </div>
+            <div class="total"><span>Total:</span><span id="cart-total">R$ 0,00</span></div>
+            <button onclick="checkoutWhatsApp()" class="checkout-btn">
+                <i class="fa-brands fa-whatsapp"></i> Finalizar no WhatsApp
+            </button>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" onclick="toggleCart()"></div>
+
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-gallery">
+                <div id="main-media-container" style="width:100%; height:100%;"></div>
+                <div class="thumbnail-row" id="modal-thumbnails"></div>
+            </div>
+            <div class="modal-details">
+                <span class="category" id="modal-category"></span>
+                <h2 id="modal-title"></h2>
+                <span class="price" id="modal-price"></span>
+                <p class="modal-desc" id="modal-desc"></p>
+                
+                <div class="virtual-fitting">
+                    <h4><i class="fa-solid fa-ruler-combined"></i> Provador Virtual</h4>
+                    <div class="fitting-inputs">
+                        <input type="number" id="fit-height" placeholder="Altura (cm)">
+                        <input type="number" id="fit-weight" placeholder="Peso (kg)">
+                        <button class="calc-btn" onclick="calculateSize()">Calcular</button>
+                    </div>
+                    <div id="fit-result" class="fitting-result"></div>
+                </div>
+
+                <div class="size-selector">
+                    <p>Escolha o Tamanho:</p>
+                    <div class="sizes-container" id="modal-sizes"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-modal-cart" onclick="addModalToCart()">ADICIONAR AO CARRINHO</button>
+                    <a href="#" id="modal-buy-link" target="_blank" class="btn-modal-buy"><i class="fa-solid fa-bolt"></i> COMPRAR AGORA</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="warning-modal" class="warning-overlay">
+        <div class="warning-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p>Selecione um tamanho!</p>
+            <button onclick="closeWarning()" class="warning-btn">OK</button>
+        </div>
+    </div>
+
+    <div id="modal-sobre" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-sobre')">&times;</button>
+            <h2>Sobre a Campbell</h2>
+            <div class="info-text">
+                <p><strong>Potencialize sua performance.</strong></p>
+                <p>A Campbell Moda Fitness nasceu com o propósito de unir tecnologia têxtil e design.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-trocas" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-trocas')">&times;</button>
+            <h2>Trocas e Devoluções</h2>
+            <div class="info-text">
+                <p>1ª troca grátis em até 7 dias.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-medidas" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-medidas')">&times;</button>
+            <h2>Guia de Medidas</h2>
+            <div class="info-text">
+                <table style="width:100%; text-align:left; color:#ccc;">
+                    <tr><th>Tam</th><th>Manequim</th></tr>
+                    <tr><td>P</td><td>36-38</td></tr>
+                    <tr><td>M</td><td>40-42</td></tr>
+                    <tr><td>G</td><td>44-46</td></tr>
+                    <tr><td>GG</td><td>48</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <div class="logo">CAMPBELL<span>.FIT</span></div>
+                <p>Moda fitness para quem busca estilo e performance.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/campbellmodafitness/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Institucional</h3>
+                <ul>
+                    <li><a href="#" onclick="openInstitutional('modal-sobre')">Sobre Nós</a></li>
+                    <li><a href="#" onclick="openInstitutional('modal-trocas')">Política de Trocas</a></li>
+                    <li><a href="#" onclick="openInstitutional('modal-medidas')">Guia de Medidas</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Pagamento</h3>
+                <div class="payment-icons"><i class="fa-brands fa-pix"></i><i class="fa-brands fa-cc-mastercard"></i></div>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2024 Campbell Moda Fitness.</p></div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

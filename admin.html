@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Campbell | Gerador PRO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #FF005C; --secondary: #25D366; --dark-bg: #121212; --card-bg: #1E1E1E; --text-white: #ffffff; --input-bg: #2A2A2A; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        body { background-color: var(--dark-bg); color: var(--text-white); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .admin-container { width: 100%; max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h2 { margin-bottom: 20px; color: var(--primary); text-transform: uppercase; font-size: 1.2rem; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid #333; color: white; border-radius: 5px; outline: none; }
+        input:focus, textarea:focus { border-color: var(--primary); }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+        .size-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .size-checkbox { display: none; }
+        .size-label { padding: 8px 15px; background: #333; border-radius: 4px; cursor: pointer; user-select: none; border: 1px solid transparent; transition: 0.3s; }
+        .size-checkbox:checked + .size-label { background: var(--primary); font-weight: bold; border-color: var(--primary); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-copy { background: var(--secondary); color: white; margin-top: 0; }
+        #codeOutput { height: 400px; color: #0f0; background: #000; }
+        @media (max-width: 768px) { .admin-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="card">
+            <h2>Novo Produto</h2>
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="name" placeholder="Ex: Legging Power"></div>
+            <div class="form-group"><label>Categoria</label>
+                <select id="category">
+                    <option value="Conjuntos">Conjuntos</option><option value="Leggings">Leggings</option>
+                    <option value="Tops">Tops</option><option value="Shorts">Shorts</option><option value="Casacos">Casacos</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Preço (R$)</label><input type="number" id="price" step="0.01"></div>
+            <div class="form-group"><label>Links de Mídia (Fotos e Vídeos)</label><textarea id="images" placeholder="Cole um link por linha.&#10;Ex: https://...foto.jpg&#10;Ex: https://...video.mp4"></textarea></div>
+            <div class="form-group"><label>Tamanhos Disponíveis</label><div class="size-options"><label><input type="checkbox" class="size-checkbox" value="P"><span class="size-label">P</span></label><label><input type="checkbox" class="size-checkbox" value="M"><span class="size-label">M</span></label><label><input type="checkbox" class="size-checkbox" value="G"><span class="size-label">G</span></label><label><input type="checkbox" class="size-checkbox" value="GG"><span class="size-label">GG</span></label><label><input type="checkbox" class="size-checkbox" value="U"><span class="size-label">U</span></label></div></div>
+            <div class="form-group"><label>Descrição do Produto</label><textarea id="desc" placeholder="Detalhes do tecido, modelagem..."></textarea></div>
+            <div class="form-group"><label>Link de Pagamento (Mercado Pago)</label><input type="text" id="paymentLink" placeholder="Link do checkout ou deixe vazio"></div>
+            <button class="btn btn-add" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Gerar Produto</button>
+        </div>
+        <div class="card">
+            <h2>Código Pronto</h2>
+            <textarea id="codeOutput" readonly></textarea>
+            <button class="btn btn-copy" onclick="copyCode()"><i class="fa-regular fa-copy"></i> Copiar Código</button>
+        </div>
+    </div>
+    <script>
+        let productList = []; let nextId = 1;
+        function updateOutput() { document.getElementById('codeOutput').value = `const products = ${JSON.stringify(productList, null, 4)};`; }
+        function addProduct() {
+            const name = document.getElementById('name').value; const category = document.getElementById('category').value; const price = parseFloat(document.getElementById('price').value); const desc = document.getElementById('desc').value; const paymentLink = document.getElementById('paymentLink').value || "#";
+            const images = document.getElementById('images').value.split('\n').map(l => l.trim()).filter(l => l !== "");
+            const selectedSizes = Array.from(document.querySelectorAll('.size-checkbox:checked')).map(cb => cb.value);
+            if (!name || isNaN(price) || images.length === 0 || selectedSizes.length === 0) { alert("Preencha todos os campos!"); return; }
+            productList.push({ id: nextId++, name, category, price, images, description: desc, sizes: selectedSizes, paymentLink });
+            updateOutput();
+            const btn = document.querySelector('.btn-add'); btn.innerHTML = 'Adicionado!'; setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-plus"></i> Gerar Produto', 1000);
+        }
+        function copyCode() { navigator.clipboard.writeText(document.getElementById("codeOutput").value); alert("Código copiado!"); }
+        updateOutput();
+    </script>
+</body>
+</html>
