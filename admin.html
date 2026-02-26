@@ -10,62 +10,221 @@
         :root { --primary: #FF005C; --secondary: #25D366; --dark-bg: #121212; --card-bg: #1E1E1E; --text-white: #ffffff; --input-bg: #2A2A2A; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
         body { background-color: var(--dark-bg); color: var(--text-white); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .admin-container { width: 100%; max-width: 1000px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .admin-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         .card { background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h2 { margin-bottom: 20px; color: var(--primary); text-transform: uppercase; font-size: 1.2rem; }
+        h2 { margin-bottom: 20px; color: var(--primary); text-transform: uppercase; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center;}
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; font-weight: 600;}
         input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid #333; color: white; border-radius: 5px; outline: none; }
         input:focus, textarea:focus { border-color: var(--primary); }
-        textarea { resize: vertical; min-height: 80px; font-family: monospace; }
+        textarea { resize: vertical; min-height: 80px; font-family: monospace; font-size: 0.85rem;}
         .size-options { display: flex; gap: 10px; flex-wrap: wrap; }
         .size-checkbox { display: none; }
         .size-label { padding: 8px 15px; background: #333; border-radius: 4px; cursor: pointer; user-select: none; border: 1px solid transparent; transition: 0.3s; }
         .size-checkbox:checked + .size-label { background: var(--primary); font-weight: bold; border-color: var(--primary); }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; display: flex; justify-content: center; gap: 10px; align-items: center;}
         .btn-add { background: var(--primary); color: white; }
-        .btn-copy { background: var(--secondary); color: white; margin-top: 0; }
-        #codeOutput { height: 400px; color: #0f0; background: #000; }
-        @media (max-width: 768px) { .admin-container { grid-template-columns: 1fr; } }
+        .btn-add:hover { filter: brightness(1.2); }
+        .btn-copy { background: var(--secondary); color: white; margin-top: 10px; }
+        .btn-copy:hover { filter: brightness(1.1); }
+        #codeOutput { height: 300px; color: #0f0; background: #000; font-family: monospace; white-space: pre; overflow-x: auto;}
+        
+        .helper-box { background: #252525; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary); margin-bottom: 15px; font-size: 0.8rem; }
+        .helper-box p { margin-bottom: 8px; color: #fff; font-weight: bold; }
+        .helper-box a { color: var(--secondary); text-decoration: none; border-bottom: 1px solid var(--secondary); transition: 0.3s; }
+        
+        /* Lista de produtos adicionados */
+        .added-list-container { margin-top: 20px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; max-height: 200px; overflow-y: auto;}
+        .added-list-container h3 { font-size: 0.9rem; color: #aaa; margin-bottom: 10px; text-transform: uppercase;}
+        .added-list { list-style: none; padding: 0; margin: 0; }
+        .added-list li { display: flex; justify-content: space-between; background: #222; padding: 8px 12px; margin-bottom: 5px; border-radius: 4px; font-size: 0.85rem; border-left: 3px solid var(--primary);}
+        .delete-btn { color: #ff4444; cursor: pointer; border: none; background: none; font-weight: bold;}
+        
+        .row-group { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; }
+
+        @media (max-width: 900px) { .admin-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="admin-container">
         <div class="card">
-            <h2>Novo Produto</h2>
-            <div class="form-group"><label>Nome do Produto</label><input type="text" id="name" placeholder="Ex: Legging Power"></div>
+            <h2>Novo Produto <span style="font-size:0.8rem; color:#aaa; font-weight:normal;">Preencha os dados</span></h2>
+            
+            <div class="row-group">
+                <div class="form-group">
+                    <label style="color:var(--secondary)">ID Inicial</label>
+                    <input type="number" id="startId" value="1" title="Se você já tem 6 produtos, coloque 7 aqui.">
+                </div>
+                <div class="form-group"><label>Nome do Produto</label><input type="text" id="name" placeholder="Ex: Macacão Fit"></div>
+            </div>
+            
             <div class="form-group"><label>Categoria</label>
                 <select id="category">
-                    <option value="Conjuntos">Conjuntos</option><option value="Leggings">Leggings</option>
-                    <option value="Tops">Tops</option><option value="Shorts">Shorts</option><option value="Casacos">Casacos</option>
+                    <option value="Macacões">Macacões</option>
+                    <option value="Conjuntos de Calça e Legging">Conjuntos de Calça e Legging</option>
+                    <option value="Conjuntos de Shorts e Bermuda">Conjuntos de Shorts e Bermuda</option>
                 </select>
             </div>
-            <div class="form-group"><label>Preço (R$)</label><input type="number" id="price" step="0.01"></div>
-            <div class="form-group"><label>Links de Mídia (Fotos e Vídeos)</label><textarea id="images" placeholder="Cole um link por linha.&#10;Ex: https://...foto.jpg&#10;Ex: https://...video.mp4"></textarea></div>
-            <div class="form-group"><label>Tamanhos Disponíveis</label><div class="size-options"><label><input type="checkbox" class="size-checkbox" value="P"><span class="size-label">P</span></label><label><input type="checkbox" class="size-checkbox" value="M"><span class="size-label">M</span></label><label><input type="checkbox" class="size-checkbox" value="G"><span class="size-label">G</span></label><label><input type="checkbox" class="size-checkbox" value="GG"><span class="size-label">GG</span></label><label><input type="checkbox" class="size-checkbox" value="U"><span class="size-label">U</span></label></div></div>
+
+            <div class="form-group"><label>Preço (R$)</label><input type="number" id="price" step="0.01" placeholder="Ex: 189.90"></div>
+
+            <div class="form-group">
+                <label>Links de Mídia (Fotos)</label>
+                <div class="helper-box">
+                    <p><i class="fa-solid fa-wrench"></i> Dica de Hospedagem</p>
+                    Use o <a href="https://postimages.org/" target="_blank">Postimages</a> e copie o <strong>"Link direto"</strong>.
+                </div>
+                <textarea id="images" placeholder="Cole um link direto por linha.&#10;Ex: https://i.postimg.cc/...foto1.jpg"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Tamanhos Disponíveis</label>
+                <div class="size-options">
+                    <label><input type="checkbox" class="size-checkbox" value="P"><span class="size-label">P</span></label>
+                    <label><input type="checkbox" class="size-checkbox" value="M"><span class="size-label">M</span></label>
+                    <label><input type="checkbox" class="size-checkbox" value="G"><span class="size-label">G</span></label>
+                    <label><input type="checkbox" class="size-checkbox" value="GG"><span class="size-label">GG</span></label>
+                    <label><input type="checkbox" class="size-checkbox" value="U"><span class="size-label">ÚNICO (U)</span></label>
+                </div>
+            </div>
+
             <div class="form-group"><label>Descrição do Produto</label><textarea id="desc" placeholder="Detalhes do tecido, modelagem..."></textarea></div>
-            <div class="form-group"><label>Link de Pagamento (Mercado Pago)</label><input type="text" id="paymentLink" placeholder="Link do checkout ou deixe vazio"></div>
-            <button class="btn btn-add" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Gerar Produto</button>
+            <div class="form-group"><label>Link de Pagamento</label><input type="text" id="paymentLink" placeholder="Deixe vazio para chamar no WhatsApp"></div>
+            
+            <button class="btn btn-add" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Adicionar à Lista</button>
         </div>
+
         <div class="card">
             <h2>Código Pronto</h2>
-            <textarea id="codeOutput" readonly></textarea>
-            <button class="btn btn-copy" onclick="copyCode()"><i class="fa-regular fa-copy"></i> Copiar Código</button>
+            <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
+                Vá adicionando seus produtos. Quando terminar, copie o código inteiro abaixo e cole no seu arquivo <strong>script.js</strong>.
+            </p>
+            
+            <div class="added-list-container">
+                <h3>📦 Produtos na Lista Atual (<span id="count">0</span>)</h3>
+                <ul class="added-list" id="addedList">
+                    <li style="color:#666; border:none; justify-content:center;">Nenhum produto adicionado ainda...</li>
+                </ul>
+            </div>
+
+            <textarea id="codeOutput" readonly style="margin-top: 15px;"></textarea>
+            
+            <button class="btn btn-copy" onclick="copyCode()"><i class="fa-regular fa-copy"></i> Copiar Código Completo</button>
         </div>
     </div>
+
     <script>
-        let productList = []; let nextId = 1;
-        function updateOutput() { document.getElementById('codeOutput').value = `const products = ${JSON.stringify(productList, null, 4)};`; }
-        function addProduct() {
-            const name = document.getElementById('name').value; const category = document.getElementById('category').value; const price = parseFloat(document.getElementById('price').value); const desc = document.getElementById('desc').value; const paymentLink = document.getElementById('paymentLink').value || "#";
-            const images = document.getElementById('images').value.split('\n').map(l => l.trim()).filter(l => l !== "");
-            const selectedSizes = Array.from(document.querySelectorAll('.size-checkbox:checked')).map(cb => cb.value);
-            if (!name || isNaN(price) || images.length === 0 || selectedSizes.length === 0) { alert("Preencha todos os campos!"); return; }
-            productList.push({ id: nextId++, name, category, price, images, description: desc, sizes: selectedSizes, paymentLink });
-            updateOutput();
-            const btn = document.querySelector('.btn-add'); btn.innerHTML = 'Adicionado!'; setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-plus"></i> Gerar Produto', 1000);
+        let productList = [];
+
+        function formatProductToSingleLine(p) {
+            // Formata a string de forma elegante: { id: 1, name: "...", ... } em uma linha só
+            const imgs = JSON.stringify(p.images);
+            const sizes = JSON.stringify(p.sizes);
+            // Limpa quebras de linha da descrição para não quebrar o layout do código
+            const cleanDesc = p.description.replace(/\n/g, ' '); 
+            
+            return `    { id: ${p.id}, name: "${p.name}", category: "${p.category}", price: ${p.price.toFixed(2)}, images: ${imgs}, description: "${cleanDesc}", sizes: ${sizes}, paymentLink: "${p.paymentLink}" }`;
         }
-        function copyCode() { navigator.clipboard.writeText(document.getElementById("codeOutput").value); alert("Código copiado!"); }
+
+        function updateOutput() {
+            const listEl = document.getElementById('addedList');
+            const countEl = document.getElementById('count');
+            const outputEl = document.getElementById('codeOutput');
+
+            countEl.innerText = productList.length;
+
+            if (productList.length === 0) {
+                listEl.innerHTML = '<li style="color:#666; border:none; justify-content:center;">Nenhum produto adicionado ainda...</li>';
+                outputEl.value = 'const products = [\n    // Adicione produtos na esquerda...\n];';
+                return;
+            }
+
+            // Atualiza a lista visual
+            listEl.innerHTML = productList.map(p => `
+                <li>
+                    <span><strong>#${p.id}</strong> - ${p.name} (R$ ${p.price.toFixed(2).replace('.', ',')})</span>
+                    <button class="delete-btn" onclick="removeProduct(${p.id})" title="Remover"><i class="fa-solid fa-trash"></i></button>
+                </li>
+            `).join('');
+
+            // Atualiza o código fonte (Cada produto em 1 linha!)
+            let finalCode = "const products = [\n";
+            finalCode += productList.map(formatProductToSingleLine).join(",\n");
+            finalCode += "\n];";
+            
+            outputEl.value = finalCode;
+        }
+
+        function addProduct() {
+            const nameEl = document.getElementById('name');
+            const idEl = document.getElementById('startId');
+            
+            const currentId = parseInt(idEl.value);
+            const name = nameEl.value.trim();
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const desc = document.getElementById('desc').value.trim();
+            const paymentLink = document.getElementById('paymentLink').value.trim() || "#";
+            
+            const imagesRaw = document.getElementById('images').value;
+            const images = imagesRaw.split('\n').map(link => link.trim()).filter(link => link !== "");
+            const selectedSizes = Array.from(document.querySelectorAll('.size-checkbox:checked')).map(cb => cb.value);
+
+            if (!name || isNaN(price) || images.length === 0 || selectedSizes.length === 0) {
+                alert("Obrigatório: Nome, Preço, Pelo menos 1 Tamanho e 1 Link de Foto!"); 
+                return;
+            }
+
+            productList.push({
+                id: currentId,
+                name: name,
+                category: category,
+                price: price,
+                images: images,
+                description: desc || "Sem descrição.",
+                sizes: selectedSizes,
+                paymentLink: paymentLink
+            });
+            
+            // Aumenta o ID automaticamente para o próximo produto
+            idEl.value = currentId + 1;
+            
+            updateOutput();
+            
+            // Efeito de sucesso no botão
+            const btn = document.querySelector('.btn-add');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Adicionado com Sucesso!';
+            btn.style.background = "var(--secondary)";
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar à Lista';
+                btn.style.background = "var(--primary)";
+            }, 1500);
+            
+            // Limpa apenas os campos de dados, mantendo o ID
+            nameEl.value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('images').value = '';
+            document.getElementById('desc').value = '';
+            document.getElementById('paymentLink').value = '';
+            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
+            nameEl.focus();
+        }
+
+        function removeProduct(id) {
+            productList = productList.filter(p => p.id !== id);
+            updateOutput();
+        }
+
+        function copyCode() {
+            const copyText = document.getElementById("codeOutput");
+            if (productList.length === 0) return alert("Adicione produtos primeiro!");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("✅ Código copiado!\n\nAgora vá no seu arquivo script.js, apague a lista antiga e cole esta nova!");
+        }
+        
+        // Inicializa tela
         updateOutput();
     </script>
 </body>
