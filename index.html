@@ -6,28 +6,51 @@
     <title>Campbell Moda Fitness | Estilo e Performance</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <p>🚚 Frete Grátis acima de R$ 299,00 | 💳 10% OFF no PIX</p>
-    </div>
+    </div> -->
 
     <header id="header">
         <div class="container header-flex">
             <div class="logo">CAMPBELL<span>.FIT</span></div>
             <nav>
                 <ul>
-                    <li><a href="#lancamentos">Lançamentos</a></li>
-                    <li><a href="#conjuntos">Conjuntos</a></li>
-                    <li><a href="#tops">Tops</a></li>
-                    <li><a href="#leggings">Leggings</a></li>
+                    <li><a href="#destaques">Destaques</a></li>
+                    <li><a href="#macacoes">Macacões</a></li>
+                    <li><a href="#conjuntos-calca">Calça e Legging</a></li>
+                    <li><a href="#conjuntos-shorts">Shorts e Bermuda</a></li>
                 </ul>
             </nav>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span id="cart-count">0</span>
+            
+            <div style="display:flex; align-items:center; gap: 15px;">
+                <div style="position: relative;">
+                    <button id="login-btn" onclick="toggleUserProfile()" class="btn-login-header" style="background:transparent; border:1px solid var(--primary); color:white; padding:6px 15px; border-radius:20px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-brands fa-google"></i> Entrar
+                    </button>
+                    
+                    <div id="user-menu" class="user-menu">
+                        <div class="user-menu-header">Minha Conta</div>
+                        <button onclick="openProfileModal()"><i class="fa-solid fa-user-pen"></i> Meus Dados</button>
+                        <button onclick="openMyOrders()"><i class="fa-solid fa-box-open"></i> Meus Pedidos</button>
+                        
+                        <div id="admin-area" style="display: none;">
+                            <div class="user-menu-header" style="color: var(--primary); margin-top: 5px; border-top: 1px solid #333; padding-top: 10px;">Administração</div>
+                            <button onclick="window.open('painel-pedidos.html', '_blank')"><i class="fa-solid fa-list-check"></i> Kanban de Pedidos</button>
+                            <button onclick="window.open('admin.html', '_blank')"><i class="fa-solid fa-tags"></i> Cadastrar Produtos</button>
+                        </div>
+
+                        <button onclick="fazerLogout()" style="color: #ff4444; border-top: 1px solid #222; margin-top: 5px;"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+                    </div>
+                </div>
+
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span id="cart-count">0</span>
+                </div>
             </div>
         </div>
     </header>
@@ -36,7 +59,7 @@
         <div class="hero-content">
             <h1>Sua Melhor Versão <br>Começa no Look</h1>
             <p>Tecnologia de compressão inteligente e design que valoriza suas curvas.</p>
-            <a href="#lancamentos" class="cta-button">Ver Coleção Nova</a>
+            <a href="#destaques" class="cta-button">Ver Coleção Nova</a>
         </div>
     </section>
 
@@ -46,33 +69,29 @@
         <div class="feature-item"><i class="fa-solid fa-rotate"></i><h3>Troca Fácil</h3><p>1ª troca gratuita em até 7 dias.</p></div>
     </section>
 
-    <main class="container" id="lancamentos">
+    <main class="container" id="destaques">
         <div class="section-title"><h2>🔥 Destaques da Semana</h2><div class="line"></div></div>
         <div id="grid-destaques" class="product-grid"></div>
     </main>
-
-    <section class="container" id="conjuntos" style="padding-top: 60px;">
-        <div class="section-title"><h2>Nossos Conjuntos</h2><div class="line"></div></div>
-        <div id="grid-conjuntos" class="product-grid"></div>
+    
+    <section class="container" id="macacoes" style="padding-top: 60px;">
+        <div class="section-title"><h2>Macacões</h2><div class="line"></div></div>
+        <div id="grid-macacoes" class="product-grid"></div>
     </section>
 
-    <section class="container" id="tops" style="padding-top: 60px;">
-        <div class="section-title"><h2>Tops Fitness</h2><div class="line"></div></div>
-        <div id="grid-tops" class="product-grid"></div>
+    <section class="container" id="conjuntos-calca" style="padding-top: 60px;">
+        <div class="section-title"><h2>Conjuntos de Calça e Legging</h2><div class="line"></div></div>
+        <div id="grid-conjuntos-calca" class="product-grid"></div>
     </section>
 
-    <section class="container" id="leggings" style="padding-top: 60px;">
-        <div class="section-title"><h2>Leggings & Calças</h2><div class="line"></div></div>
-        <div id="grid-leggings" class="product-grid"></div>
+    <section class="container" id="conjuntos-shorts" style="padding-top: 60px;">
+        <div class="section-title"><h2>Conjuntos de Shorts e Bermuda</h2><div class="line"></div></div>
+        <div id="grid-conjuntos-shorts" class="product-grid"></div>
     </section>
 
     <div class="floating-buttons">
-        <a href="https://www.instagram.com/campbellmodafitness/" target="_blank" class="float-btn insta-btn">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
-        <a href="https://wa.me/5532984192045?text=Ol%C3%A1%20Campbell!%20Vim%20pelo%20site%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida." target="_blank" class="float-btn whats-btn">
-            <i class="fa-brands fa-whatsapp"></i>
-        </a>
+        <a href="https://www.instagram.com/campbellmodafitness/" target="_blank" class="float-btn insta-btn"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://wa.me/5532984192045?text=Ol%C3%A1%20Campbell!%20Vim%20pelo%20site%20e%20estou%20com%20d%C3%BAvidas." target="_blank" class="float-btn whats-btn"><i class="fa-brands fa-whatsapp"></i></a>
     </div>
 
     <div id="cart-sidebar" class="cart-sidebar">
@@ -80,51 +99,27 @@
             <h3>Seu Carrinho</h3>
             <button onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        
         <div class="cart-body">
             <div id="cart-items" class="cart-items"></div>
-
             <div class="cart-form">
                 <h4><i class="fa-regular fa-user"></i> Seus Dados</h4>
                 <input type="text" id="client-name" placeholder="Nome Completo">
-                
                 <h4><i class="fa-solid fa-map-location-dot"></i> Entrega</h4>
                 <div class="form-row">
-                    <input type="tel" id="client-cep" placeholder="CEP" maxlength="9" onblur="buscarCep()">
+                    <input type="tel" id="client-cep" placeholder="CEP" maxlength="9" onblur="buscarCep('client')">
                     <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" class="cep-link">Não sei meu CEP</a>
                 </div>
-                
-                <div class="form-row">
-                    <input type="text" id="client-street" placeholder="Rua/Av" disabled>
-                    <input type="text" id="client-number" placeholder="Nº" style="width: 80px;">
-                </div>
-                
+                <div class="form-row"><input type="text" id="client-street" placeholder="Rua/Av" disabled><input type="text" id="client-number" placeholder="Nº" style="width: 80px;"></div>
                 <input type="text" id="client-comp" placeholder="Complemento">
-                
-                <div class="form-row">
-                    <input type="text" id="client-neighborhood" placeholder="Bairro" disabled>
-                    <input type="text" id="client-city" placeholder="Cidade" disabled>
-                    <input type="text" id="client-uf" placeholder="UF" style="width: 60px;" disabled>
-                </div>
-                
+                <div class="form-row"><input type="text" id="client-neighborhood" placeholder="Bairro" disabled><input type="text" id="client-city" placeholder="Cidade" disabled><input type="text" id="client-uf" placeholder="UF" style="width: 60px;" disabled></div>
                 <h4><i class="fa-regular fa-credit-card"></i> Pagamento</h4>
-                <select id="client-payment">
-                    <option value="" disabled selected>Selecione...</option>
-                    <option value="PIX (10% OFF)">PIX (10% OFF)</option>
-                    <option value="Cartão de Crédito">Cartão de Crédito</option>
-                </select>
+                <select id="client-payment"><option value="PIX">PIX (Aprovação Imediata)</option><option value="Cartão de Crédito">Cartão de Crédito</option></select>
             </div>
         </div>
-
         <div class="cart-footer">
-            <div class="checkout-notice">
-                <i class="fa-brands fa-whatsapp"></i>
-                <p>Você será redirecionada para o WhatsApp para confirmar.</p>
-            </div>
+            <div class="checkout-notice"><i class="fa-brands fa-whatsapp"></i><p>Você será redirecionada para o WhatsApp para confirmar.</p></div>
             <div class="total"><span>Total:</span><span id="cart-total">R$ 0,00</span></div>
-            <button onclick="checkoutWhatsApp()" class="checkout-btn">
-                <i class="fa-brands fa-whatsapp"></i> Finalizar no WhatsApp
-            </button>
+            <button onclick="checkoutWhatsApp()" class="checkout-btn"><i class="fa-brands fa-whatsapp"></i> Finalizar no WhatsApp</button>
         </div>
     </div>
     <div id="overlay" class="overlay" onclick="toggleCart()"></div>
@@ -141,83 +136,83 @@
                 <h2 id="modal-title"></h2>
                 <span class="price" id="modal-price"></span>
                 <p class="modal-desc" id="modal-desc"></p>
-                
                 <div class="virtual-fitting">
                     <h4><i class="fa-solid fa-ruler-combined"></i> Provador Virtual</h4>
                     <div class="fitting-inputs">
-                        <input type="number" id="fit-height" placeholder="Altura (cm)">
-                        <input type="number" id="fit-weight" placeholder="Peso (kg)">
-                        <button class="calc-btn" onclick="calculateSize()">Calcular</button>
+                        <input type="number" id="fit-height" placeholder="Altura (cm)"><input type="number" id="fit-weight" placeholder="Peso (kg)"><button class="calc-btn" onclick="calculateSize()">Calcular</button>
                     </div>
                     <div id="fit-result" class="fitting-result"></div>
                 </div>
-
-                <div class="size-selector">
-                    <p>Escolha o Tamanho:</p>
-                    <div class="sizes-container" id="modal-sizes"></div>
-                </div>
-
+                <div class="size-selector"><p>Escolha o Tamanho:</p><div class="sizes-container" id="modal-sizes"></div></div>
                 <div class="modal-actions">
-                    <button class="btn-modal-cart" onclick="addModalToCart()">ADICIONAR AO CARRINHO</button>
-                    <a href="#" id="modal-buy-link" target="_blank" class="btn-modal-buy"><i class="fa-solid fa-bolt"></i> COMPRAR AGORA</a>
+                    <button class="btn-modal-cart" onclick="addToCart(false)">ADICIONAR AO CARRINHO</button>
+                    <button class="btn-modal-buy" onclick="addToCart(true)"><i class="fa-solid fa-bolt"></i> COMPRAR AGORA</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="modal-profile" class="info-modal-overlay">
+        <div class="info-modal-content" style="text-align: left;">
+            <button class="close-modal" onclick="closeInstitutional('modal-profile')">&times;</button>
+            <h2 style="text-align:center;"><i class="fa-solid fa-user-pen"></i> Meus Dados</h2>
+            <div class="cart-form" style="background:transparent; padding:0; border:none;">
+                <label style="color:#888; font-size:0.8rem;">Nome (Google)</label><input type="text" id="profile-name" disabled style="opacity:0.6;">
+                <label style="color:#888; font-size:0.8rem;">E-mail (Google)</label><input type="text" id="profile-email" disabled style="opacity:0.6;">
+                
+                <label style="color:var(--primary); font-size:0.8rem; margin-top:10px; display:block;">CEP Padrão</label>
+                <input type="tel" id="profile-cep" placeholder="Apenas números" maxlength="9" onblur="buscarCep('profile')">
+
+                <label style="color:var(--primary); font-size:0.8rem; margin-top:5px; display:block;">Endereço Padrão</label>
+                <div class="form-row">
+                    <input type="text" id="profile-street" placeholder="Rua/Av" disabled>
+                    <input type="text" id="profile-number" placeholder="Nº" style="width: 80px;">
+                </div>
+                <input type="text" id="profile-comp" placeholder="Complemento">
+                <div class="form-row">
+                    <input type="text" id="profile-neighborhood" placeholder="Bairro" disabled>
+                    <input type="text" id="profile-city" placeholder="Cidade" disabled>
+                    <input type="text" id="profile-uf" placeholder="UF" style="width: 60px;" disabled>
+                </div>
+                
+                <label style="color:var(--primary); font-size:0.8rem; margin-top:10px; display:block;">Telefone / WhatsApp</label>
+                <input type="text" id="profile-phone" placeholder="(XX) 9XXXX-XXXX">
+                
+                <button onclick="saveUserProfile()" class="checkout-btn" style="margin-top:15px; justify-content:center;">Salvar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-user-orders" class="info-modal-overlay">
+        <div class="info-modal-content" style="max-width: 600px;">
+            <button class="close-modal" onclick="closeInstitutional('modal-user-orders')">&times;</button>
+            <h2 style="text-align:center;"><i class="fa-solid fa-box-open"></i> Meus Pedidos</h2>
+            <div id="orders-list-container" style="text-align: left; max-height: 400px; overflow-y: auto; margin-top:15px; padding-right:10px;">
+                <p style="color:#888; text-align:center;">Carregando...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-toast" class="success-overlay"><div class="success-box"><i class="fa-regular fa-circle-check"></i><div><h3 id="toast-title">Sucesso</h3><p id="toast-msg">...</p></div></div></div>
+    
     <div id="warning-modal" class="warning-overlay">
         <div class="warning-box">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <p>Selecione um tamanho!</p>
+            <p id="warning-msg">Selecione um tamanho!</p>
             <button onclick="closeWarning()" class="warning-btn">OK</button>
         </div>
     </div>
 
-    <div id="modal-sobre" class="info-modal-overlay">
-        <div class="info-modal-content">
-            <button class="close-modal" onclick="closeInstitutional('modal-sobre')">&times;</button>
-            <h2>Sobre a Campbell</h2>
-            <div class="info-text">
-                <p><strong>Potencialize sua performance.</strong></p>
-                <p>A Campbell Moda Fitness nasceu com o propósito de unir tecnologia têxtil e design.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-trocas" class="info-modal-overlay">
-        <div class="info-modal-content">
-            <button class="close-modal" onclick="closeInstitutional('modal-trocas')">&times;</button>
-            <h2>Trocas e Devoluções</h2>
-            <div class="info-text">
-                <p>1ª troca grátis em até 7 dias.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-medidas" class="info-modal-overlay">
-        <div class="info-modal-content">
-            <button class="close-modal" onclick="closeInstitutional('modal-medidas')">&times;</button>
-            <h2>Guia de Medidas</h2>
-            <div class="info-text">
-                <table style="width:100%; text-align:left; color:#ccc;">
-                    <tr><th>Tam</th><th>Manequim</th></tr>
-                    <tr><td>P</td><td>36-38</td></tr>
-                    <tr><td>M</td><td>40-42</td></tr>
-                    <tr><td>G</td><td>44-46</td></tr>
-                    <tr><td>GG</td><td>48</td></tr>
-                </table>
-            </div>
-        </div>
-    </div>
+    <div id="modal-sobre" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-sobre')">&times;</button><h2>Sobre a Campbell</h2><div class="info-text"><p><strong>Potencialize sua performance.</strong></p><p>A Campbell Moda Fitness nasceu com o propósito de unir tecnologia têxtil e design.</p></div></div></div>
+    <div id="modal-trocas" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-trocas')">&times;</button><h2>Trocas e Devoluções</h2><div class="info-text"><p>1ª troca grátis em até 7 dias.</p></div></div></div>
+    <div id="modal-medidas" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-medidas')">&times;</button><h2>Guia de Medidas</h2><div class="info-text"><table style="width:100%; text-align:center; color:#ccc; border-collapse: collapse;"><tr><th style="border-bottom:1px solid #333; padding:10px;">Tam</th><th style="border-bottom:1px solid #333;">Manequim</th></tr><tr><td style="padding:10px;">P</td><td>36-38</td></tr><tr><td style="padding:10px;">M</td><td>40-42</td></tr><tr><td style="padding:10px;">G</td><td>44-46</td></tr><tr><td style="padding:10px;">GG</td><td>48</td></tr></table></div></div></div>
 
     <footer>
         <div class="container footer-grid">
             <div class="footer-col">
                 <div class="logo">CAMPBELL<span>.FIT</span></div>
                 <p>Moda fitness para quem busca estilo e performance.</p>
-                <div class="social-links">
-                    <a href="https://www.instagram.com/campbellmodafitness/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                </div>
+                <div class="social-links"><a href="https://www.instagram.com/campbellmodafitness/" target="_blank"><i class="fa-brands fa-instagram"></i></a></div>
             </div>
             <div class="footer-col">
                 <h3>Institucional</h3>
@@ -235,6 +230,66 @@
         <div class="footer-bottom"><p>&copy; 2024 Campbell Moda Fitness.</p></div>
     </footer>
 
-    <script src="script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_zI5Cn9gRwds239jA0mEf2qeprJHLFtc",
+            authDomain: "campbell-loja-2024.firebaseapp.com",
+            projectId: "campbell-loja-2024",
+            storageBucket: "campbell-loja-2024.firebasestorage.app",
+            messagingSenderId: "135628801506",
+            appId: "1:135628801506:web:3f0f759f3811491d5225bb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app); window.auth = getAuth(app); window.provider = new GoogleAuthProvider();
+        window.addDoc = addDoc; window.setDoc = setDoc; window.doc = doc; window.getDoc = getDoc; window.getDocs = getDocs; window.query = query; window.where = where; window.collection = collection; window.signInWithPopup = signInWithPopup; window.signOut = signOut; window.userLogado = null;
+
+        onAuthStateChanged(window.auth, async (user) => {
+            window.userLogado = user;
+            const btn = document.getElementById('login-btn');
+            const adminArea = document.getElementById('admin-area'); // Pega a div secreta do admin
+
+            if (user) {
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${user.displayName.split(' ')[0]}`;
+                btn.onclick = window.toggleUserProfile;
+
+                // MÁGICA: SÓ MOSTRA O MENU DE ADMINISTRAÇÃO SE FOR O SEU E-MAIL
+                if (user.email === 'othaviocampbell2015@gmail.com') {
+                    adminArea.style.display = 'block';
+                } else {
+                    adminArea.style.display = 'none';
+                }
+
+                try {
+                    const docSnap = await getDoc(doc(window.db, "users", user.uid));
+                    if(docSnap.exists()) {
+                        window.userProfile = docSnap.data();
+                        if(document.getElementById('client-name')) document.getElementById('client-name').value = user.displayName;
+                        
+                        // Auto-preenche todos os dados no Carrinho
+                        if(document.getElementById('client-cep')) {
+                            document.getElementById('client-cep').value = window.userProfile.cep || "";
+                            document.getElementById('client-street').value = window.userProfile.street || "";
+                            document.getElementById('client-number').value = window.userProfile.number || "";
+                            document.getElementById('client-comp').value = window.userProfile.comp || "";
+                            document.getElementById('client-neighborhood').value = window.userProfile.neighborhood || "";
+                            document.getElementById('client-city').value = window.userProfile.city || "";
+                            document.getElementById('client-uf').value = window.userProfile.uf || "";
+                        }
+                    }
+                } catch(e) {}
+            } else {
+                btn.innerHTML = `<i class="fa-brands fa-google"></i> Entrar`;
+                btn.onclick = window.fazerLogin;
+                adminArea.style.display = 'none'; // Esconde caso saia da conta
+            }
+        });
+
+        const s = document.createElement('script'); s.src = "script.js"; document.body.appendChild(s);
+    </script>
 </body>
 </html>
