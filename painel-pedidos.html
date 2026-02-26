@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Kanban</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #121212; color: white; font-family: 'Montserrat', sans-serif; padding: 20px; margin: 0; }
+        h1 { color: #FF005C; text-align: center; margin-bottom: 20px; }
+        
+        .kanban-board { 
+            display: flex; gap: 20px; overflow-x: auto; 
+            min-height: 80vh; /* Altura mínima, cresce se precisar */
+            height: auto;
+            justify-content: center; 
+            align-items: flex-start; /* Alinha no topo */
+        }
+        @media (max-width: 1000px) { .kanban-board { justify-content: flex-start; } }
+
+        .column { 
+            background: #1e1e1e; min-width: 320px; width: 320px; 
+            padding: 15px; border-radius: 10px; border-top: 4px solid #333; 
+            display: flex; flex-direction: column; gap: 10px; 
+            height: fit-content; /* Cresce com os cards */
+            min-height: 200px;
+        }
+        .col-novo { border-color: #3498db; }
+        .col-pago { border-color: #f1c40f; }
+        .col-enviado { border-color: #2ecc71; }
+        
+        /* CARD COM FOTO */
+        .card { 
+            background: #2a2a2a; padding: 12px; border-radius: 8px; border: 1px solid #333; 
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .card:hover { border-color: #FF005C; transform: translateY(-3px); }
+        
+        .card-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 0.9rem; }
+        .card-body { display: flex; gap: 10px; align-items: center; }
+        .card-thumb { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; background: #000; }
+        .card-info { flex: 1; }
+        .card-info p { margin: 2px 0; font-size: 0.8rem; color: #ccc; }
+        .card-total { color: #2ecc71; font-weight: bold; font-size: 0.9rem; display: block; margin-top: 5px; }
+
+        /* Ações Rápidas */
+        .quick-actions { display: flex; gap: 5px; margin-top: 10px; }
+        .btn-act { flex: 1; padding: 6px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.7rem; font-weight: bold; }
+        .bg-pay { background: #f1c40f; color: black; }
+        .bg-ship { background: #2ecc71; }
+        .bg-del { background: #ff4444; max-width: 30px; }
+
+        /* MODAL DETALHES DO PEDIDO */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; }
+        .overlay.active { display: flex; }
+        .modal-box { background: #1a1a1a; padding: 30px; width: 90%; max-width: 500px; border-radius: 10px; border: 1px solid #333; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        
+        .modal-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 10px 0; }
+        .modal-products { margin-top: 20px; background: #111; padding: 10px; border-radius: 8px; }
+        .modal-prod-item { display: flex; gap: 10px; margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 10px; }
+        .modal-prod-item:last-child { border: none; margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+
+    <h1>📦 Kanban de Pedidos</h1>
+    <div class="kanban-board">
+        <div class="column col-novo" id="col-novo"><h3 style="text-align:center">🆕 Novos</h3></div>
+        <div class="column col-pago" id="col-pago"><h3 style="text-align:center">💰 Pagos</h3></div>
+        <div class="column col-enviado" id="col-enviado"><h3 style="text-align:center">🚚 Enviados</h3></div>
+    </div>
+
+    <div id="order-modal" class="overlay">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeOrderModal()">&times;</button>
+            <h2 id="m-client">Cliente</h2>
+            <p id="m-id" style="color:#888; font-size:0.9rem;">#ID</p>
+            
+            <div class="modal-row"><span>Status:</span> <strong id="m-status" style="color:var(--primary)">Novo</strong></div>
+            <div class="modal-row"><span>Pagamento:</span> <strong id="m-payment">PIX</strong></div>
+            <div class="modal-row"><span>Total:</span> <strong id="m-total" style="color:#2ecc71">R$ 0,00</strong></div>
+            
+            <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">📍 <span id="m-address">Endereço...</span></p>
+
+            <div class="modal-products" id="m-products-list">
+                </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_zI5Cn9gRwds239jA0mEf2qeprJHLFtc",
+            authDomain: "campbell-loja-2024.firebaseapp.com",
+            projectId: "campbell-loja-2024",
+            storageBucket: "campbell-loja-2024.firebasestorage.app",
+            messagingSenderId: "135628801506",
+            appId: "1:135628801506:web:3f0f759f3811491d5225bb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Armazena pedidos locais para abrir modal
+        let ordersData = {};
+
+        onSnapshot(collection(db, "pedidos"), (snapshot) => {
+            document.getElementById('col-novo').innerHTML = '<h3 style="text-align:center">🆕 Novos</h3>';
+            document.getElementById('col-pago').innerHTML = '<h3 style="text-align:center">💰 Pagos</h3>';
+            document.getElementById('col-enviado').innerHTML = '<h3 style="text-align:center">🚚 Enviados</h3>';
+
+            snapshot.forEach((docSnap) => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                ordersData[id] = p; // Salva para usar no modal
+
+                // Pega a primeira foto para o card
+                const thumb = p.itens[0]?.images[0] || 'https://via.placeholder.com/50';
+                const qtdTotal = p.itens.reduce((a,b)=>a+b.quantity,0);
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                // Ao clicar no corpo do card, abre detalhes
+                card.onclick = (e) => { if(!e.target.classList.contains('btn-act')) openOrderDetails(id); };
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span>${p.cliente.nome.split(' ')[0]}</span>
+                        <small>#${id.slice(0,4)}</small>
+                    </div>
+                    <div class="card-body">
+                        <img src="${thumb}" class="card-thumb">
+                        <div class="card-info">
+                            <p>${qtdTotal} itens</p>
+                            <span class="card-total">R$ ${p.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        ${p.status === 'Novo' ? `<button class="btn-act bg-pay" onclick="mover('${id}','Pago')">PAGO</button>` : ''}
+                        ${p.status === 'Pago' ? `<button class="btn-act bg-ship" onclick="mover('${id}','Enviado')">ENVIAR</button>` : ''}
+                        <button class="btn-act bg-del" onclick="apagar('${id}')">X</button>
+                    </div>
+                `;
+
+                if(p.status === 'Novo') document.getElementById('col-novo').appendChild(card);
+                else if(p.status === 'Pago') document.getElementById('col-pago').appendChild(card);
+                else if(p.status === 'Enviado') document.getElementById('col-enviado').appendChild(card);
+            });
+        });
+
+        // FUNÇÕES GLOBAIS
+        window.mover = async (id, s) => { await updateDoc(doc(db, "pedidos", id), { status: s }); };
+        window.apagar = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "pedidos", id)); };
+
+        // LÓGICA DO MODAL
+        window.openOrderDetails = (id) => {
+            const p = ordersData[id];
+            if(!p) return;
+
+            document.getElementById('m-client').innerText = p.cliente.nome;
+            document.getElementById('m-id').innerText = "#" + id;
+            document.getElementById('m-status').innerText = p.status;
+            document.getElementById('m-payment').innerText = p.pagamento;
+            document.getElementById('m-total').innerText = `R$ ${p.total.toFixed(2)}`;
+            document.getElementById('m-address').innerText = p.cliente.endereco;
+
+            // Renderiza produtos com foto no modal
+            document.getElementById('m-products-list').innerHTML = p.itens.map(i => `
+                <div class="modal-prod-item">
+                    <img src="${i.images[0]}" style="width:50px; height:50px; border-radius:4px; object-fit:cover;">
+                    <div>
+                        <div style="color:white; font-weight:bold;">${i.quantity}x ${i.name}</div>
+                        <div style="color:#888; font-size:0.8rem;">Tam: ${i.selectedSize}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('order-modal').classList.add('active');
+        };
+
+        window.closeOrderModal = () => document.getElementById('order-modal').classList.remove('active');
+    </script>
+</body>
+</html>
