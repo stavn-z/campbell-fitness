@@ -4,62 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Campbell | Gerador PRO</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/+esm" } }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #FF005C; --secondary: #25D366; --dark-bg: #121212; --card-bg: #1E1E1E; --text-white: #ffffff; --input-bg: #2A2A2A; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
-        body { background-color: var(--dark-bg); color: var(--text-white); padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .admin-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .card { background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h2 { margin-bottom: 20px; color: var(--primary); text-transform: uppercase; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center;}
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; font-weight: 600;}
-        input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid #333; color: white; border-radius: 5px; outline: none; }
+        :root {
+            --primary: #FF005C;      /* Magenta Campbell */
+            --accent: #CBFF3D;       /* Lima Energia */
+            --secondary: #25D366;    /* Verde WhatsApp — só para elementos de WhatsApp */
+            --dark-bg: #0E0E11;      /* Preto Carvão */
+            --card-bg: #1B1B20;      /* Grafite */
+            --surface-alt: #141418;
+            --border-color: #2A2A30;
+            --text-white: #F2F0F5;   /* Branco Gelo */
+            --text-gray: #8B8B94;    /* Cinza Névoa */
+            --input-bg: #141418;
+            --font-main: 'Montserrat', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 32px; --space-xl: 48px; --space-2xl: 64px;
+            --radius-sm: 4px; --radius-md: 8px;
+
+            /* Tokens novos, usados só na tela de login — mesmos do painel-pedidos.html,
+               pra ficar visualmente igual em vez de dois estilos de login diferentes.
+               O resto da página continua nos tokens de marca acima. */
+            --bg-primary: #09090b;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1c1d26;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --border-primary: #27272a;
+            --border-hover: #3f3f46;
+            --radius-lg: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-body); }
+        h1, h2, h3, h4, .btn, .login-btn { font-family: var(--font-main); }
+        body { background-color: var(--dark-bg); color: var(--text-white); padding: var(--space-md); display: flex; justify-content: center; min-height: 100vh; }
+        .admin-container { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+        .card { background: var(--card-bg); padding: var(--space-lg); border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+        h2 { margin-bottom: var(--space-md); color: var(--primary); text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;}
+        .form-group { margin-bottom: var(--space-sm); }
+        label { display: block; margin-bottom: var(--space-xs); font-size: 0.85rem; color: var(--text-gray); font-weight: 600;}
+        input, select, textarea { width: 100%; padding: var(--space-sm); background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-white); border-radius: var(--radius-sm); outline: none; font-family: var(--font-body); transition: 0.2s; }
         input:focus, textarea:focus { border-color: var(--primary); }
         textarea { resize: vertical; min-height: 80px; font-family: monospace; font-size: 0.85rem;}
-        .size-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .size-options { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
         .size-checkbox { display: none; }
-        .size-label { padding: 8px 15px; background: #333; border-radius: 4px; cursor: pointer; user-select: none; border: 1px solid transparent; transition: 0.3s; }
+        .size-label { min-width: 44px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; padding: var(--space-xs) var(--space-sm); background: var(--surface-alt); border-radius: var(--radius-sm); cursor: pointer; user-select: none; border: 1px solid var(--border-color); transition: 0.2s; font-size: 0.9rem; }
         .size-checkbox:checked + .size-label { background: var(--primary); font-weight: bold; border-color: var(--primary); }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; display: flex; justify-content: center; gap: 10px; align-items: center;}
+        .size-stock-options { display: flex; flex-direction: column; gap: var(--space-xs); }
+        .size-stock-row { display: flex; align-items: center; gap: var(--space-sm); }
+        .size-toggle { display: flex; align-items: center; margin: 0; }
+        .size-stock-row .stock-input { width: 110px; min-height: 44px; box-sizing: border-box; }
+        .size-stock-row .stock-input:disabled { opacity: 0.4; cursor: not-allowed; }
+        .ativo-toggle { display: flex; align-items: center; gap: var(--space-xs); cursor: pointer; color: var(--text-white); font-weight: 600; }
+        .ativo-toggle input { width: auto; min-height: auto; }
+        .status-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; font-weight: bold; text-transform: uppercase; }
+        .status-badge.on { background: rgba(37,211,102,0.15); color: var(--secondary); }
+        .status-badge.off { background: rgba(255,68,68,0.15); color: #ff4444; }
+        .stock-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+        .stock-dot.ok { background: var(--secondary); }
+        .stock-dot.out { background: #ff4444; }
+        .low-stock-item { color: var(--text-white); }
+        .low-stock-item .low-stock-qty { font-weight: bold; }
+        .low-stock-item .low-stock-qty.zero { color: #ff4444; }
+        .low-stock-item .low-stock-qty.low { color: var(--accent); }
+        .toggle-btn { color: var(--text-gray); cursor: pointer; border: none; background: none; font-weight: bold; margin-right: var(--space-xs); }
+        .btn { width: 100%; padding: var(--space-sm); border: none; border-radius: var(--radius-sm); font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em; margin-top: var(--space-xs); transition: 0.2s; display: flex; justify-content: center; gap: var(--space-xs); align-items: center;}
         .btn-add { background: var(--primary); color: white; }
-        .btn-add:hover { filter: brightness(1.2); }
-        .btn-copy { background: var(--secondary); color: white; margin-top: 10px; }
-        .btn-copy:hover { filter: brightness(1.1); }
-        #codeOutput { height: 300px; color: #0f0; background: #000; font-family: monospace; white-space: pre; overflow-x: auto;}
-        
-        .helper-box { background: #252525; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary); margin-bottom: 15px; font-size: 0.8rem; }
-        .helper-box p { margin-bottom: 8px; color: #fff; font-weight: bold; }
-        .helper-box a { color: var(--secondary); text-decoration: none; border-bottom: 1px solid var(--secondary); transition: 0.3s; }
-        
-        /* Lista de produtos adicionados */
-        .added-list-container { margin-top: 20px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; max-height: 200px; overflow-y: auto;}
-        .added-list-container h3 { font-size: 0.9rem; color: #aaa; margin-bottom: 10px; text-transform: uppercase;}
-        .added-list { list-style: none; padding: 0; margin: 0; }
-        .added-list li { display: flex; justify-content: space-between; background: #222; padding: 8px 12px; margin-bottom: 5px; border-radius: 4px; font-size: 0.85rem; border-left: 3px solid var(--primary);}
-        .delete-btn { color: #ff4444; cursor: pointer; border: none; background: none; font-weight: bold;}
-        
-        .row-group { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; }
+        .btn-add:hover { filter: brightness(1.15); }
+        .import-textarea { min-height: 160px; font-family: var(--font-body); }
+        .btn-import { background: var(--accent); color: #0E0E11; }
+        .btn-import:hover { filter: brightness(1.1); }
+        .btn-import-img { background: var(--accent); color: #0E0E11; padding: 0 var(--space-sm); min-height: 44px; box-sizing: border-box; }
+        .btn-import-img:hover { filter: brightness(1.1); }
+        .btn-import-img:disabled { opacity: 0.6; cursor: default; }
+        .alert-warning { background: rgba(234,179,8,0.15); border: 1px solid #eab308; color: #eab308; padding: var(--space-sm); border-radius: var(--radius-sm); margin-bottom: var(--space-sm); font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: var(--space-xs); }
+        .helper-box { background: var(--surface-alt); padding: var(--space-sm); border-radius: var(--radius-sm); border-left: 3px solid var(--secondary); margin-bottom: var(--space-sm); font-size: 0.8rem; }
+        .helper-box p { margin-bottom: var(--space-xs); color: var(--text-white); font-weight: bold; }
+        .helper-box a { color: var(--secondary); text-decoration: none; border-bottom: 1px solid var(--secondary); transition: 0.2s; }
 
-        @media (max-width: 900px) { .admin-container { grid-template-columns: 1fr; } }
+        /* Lista de produtos adicionados */
+        .added-list-container { margin-top: var(--space-md); background: var(--surface-alt); padding: var(--space-sm); border-radius: var(--radius-sm); border: 1px solid var(--border-color); max-height: 200px; overflow-y: auto;}
+        .added-list-container h3 { font-size: 0.85rem; color: var(--text-gray); margin-bottom: var(--space-sm); text-transform: uppercase; letter-spacing: 0.03em; }
+        .added-list { list-style: none; padding: 0; margin: 0; }
+        .added-list li { display: flex; justify-content: space-between; background: var(--card-bg); padding: var(--space-xs) var(--space-sm); margin-bottom: var(--space-xs); border-radius: var(--radius-sm); font-size: 0.85rem; border-left: 3px solid var(--primary);}
+        .delete-btn { color: #ff4444; cursor: pointer; border: none; background: none; font-weight: bold;}
+
+        @media (max-width: 1023px) { .admin-container { grid-template-columns: 1fr; } }
+        @media (max-width: 599px) { body { padding: var(--space-sm); padding-top: 64px; } .card { padding: var(--space-md); } h2 span { display: none; } }
+
+        /* TELA DE LOGIN — mesmo visual do painel-pedidos.html, de propósito */
+        .login-screen { position: fixed; inset: 0; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: var(--space-md); }
+        .login-box { background: var(--bg-secondary); padding: var(--space-xl); border-radius: var(--radius-lg); width: 100%; max-width: 360px; border: 1px solid var(--border-primary); }
+        .login-box h2 { color: var(--text-primary); text-align: center; margin-bottom: var(--space-md); font-size: 1.1rem; font-weight: 700; text-transform: none; }
+        .login-box label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 0.85rem; font-weight: normal; }
+        .login-box input {
+            width: 100%; box-sizing: border-box; padding: 11px var(--space-sm); background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary); color: var(--text-primary); border-radius: var(--radius-sm);
+            margin-bottom: var(--space-sm); outline: none;
+        }
+        .login-box input:focus { border-color: var(--border-hover); }
+        .login-btn { width: 100%; box-sizing: border-box; padding: 12px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em; }
+        .login-btn:hover { filter: brightness(1.15); }
+        #login-error { color: #ef4444; font-size: 0.85rem; margin-top: var(--space-sm); text-align: center; min-height: 1em; }
+        .logout-btn { position: fixed; top: var(--space-sm); right: var(--space-sm); background: var(--surface-alt); color: var(--text-gray); border: 1px solid var(--border-color); padding: var(--space-sm); min-height: 44px; box-sizing: border-box; border-radius: var(--radius-sm); cursor: pointer; z-index: 10; font-family: var(--font-body); }
+        .logout-btn:hover { border-color: var(--primary); color: var(--text-white); }
     </style>
 </head>
 <body>
-    <div class="admin-container">
+
+    <div id="login-screen" class="login-screen">
+        <div class="login-box">
+            <h2><i class="fa-solid fa-lock"></i> Acesso Restrito</h2>
+            <label for="login-email">E-mail</label>
+            <input type="email" id="login-email" autocomplete="username">
+            <label for="login-password">Senha</label>
+            <input type="password" id="login-password" autocomplete="current-password">
+            <button class="login-btn" id="login-submit-btn" onclick="fazerLogin()">Entrar</button>
+            <p style="text-align:center; font-size:0.85rem; margin-top:12px;">
+                <a href="#" id="login-toggle-link" onclick="alternarModoLogin(event)" style="color:var(--secondary);">Não tem conta? Criar conta</a>
+            </p>
+            <p id="login-error"></p>
+        </div>
+    </div>
+
+    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="fazerLogout()">Sair</button>
+
+    <div id="app-content" class="admin-container" style="display:none;">
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2><i class="fa-solid fa-robot"></i> Importar do Fornecedor</h2>
+            <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
+                Cole abaixo o texto copiado da página do fornecedor (título, descrição, tamanhos, preço). A IA extrai os dados e pré-preenche o formulário "Novo Produto" — nada é salvo automaticamente, você revisa, escolhe a categoria e ajusta o estoque antes de clicar em "Salvar Produto".
+            </p>
+
+            <div class="form-group">
+                <label>Texto do Fornecedor</label>
+                <textarea id="import-texto" class="import-textarea" placeholder="Cole aqui o texto da página do fornecedor..."></textarea>
+            </div>
+
+            <div class="form-group" style="max-width: 220px;">
+                <label>Margem de Multiplicação</label>
+                <input type="number" id="import-margem" step="0.1" min="1" value="2.0">
+            </div>
+
+            <p id="import-status" style="font-size:0.85rem; margin-bottom:10px; min-height:1em;"></p>
+
+            <button class="btn btn-import" onclick="processarImportacao()"><i class="fa-solid fa-wand-magic-sparkles"></i> Processar com IA</button>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2><i class="fa-solid fa-code"></i> Colar JSON do Fornecedor (Dalu)</h2>
+            <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
+                Cole abaixo o JSON copiado do fornecedor Dalu (<code>{ nome, preco, descricaoSimples, descricaoCompleta, tamanhos, imagens }</code>). Preenche o formulário "Novo Produto" automaticamente, inclusive baixando as imagens — nada é salvo automaticamente, você revisa, escolhe a categoria e ajusta o estoque antes de clicar em "Salvar Produto".
+            </p>
+
+            <div class="form-group">
+                <label>JSON do Fornecedor</label>
+                <textarea id="import-json-texto" class="import-textarea" placeholder='{"nome": "...", "preco": 0, "descricaoSimples": "...", "descricaoCompleta": "...", "tamanhos": [{"tamanho": "P", "disponivel": true}], "imagens": ["https://..."]}'></textarea>
+            </div>
+
+            <p style="font-size:0.75rem; color:var(--text-gray); margin-top:-6px; margin-bottom:12px;">Usa a mesma Margem de Multiplicação configurada acima, em "Importar do Fornecedor".</p>
+
+            <p id="import-json-status" style="font-size:0.85rem; margin-bottom:10px; min-height:1em;"></p>
+
+            <button class="btn btn-import" onclick="processarJsonFornecedor(this)"><i class="fa-solid fa-code"></i> Processar JSON</button>
+        </div>
+
         <div class="card">
             <h2>Novo Produto <span style="font-size:0.8rem; color:#aaa; font-weight:normal;">Preencha os dados</span></h2>
-            
-            <div class="row-group">
-                <div class="form-group">
-                    <label style="color:var(--secondary)">ID Inicial</label>
-                    <input type="number" id="startId" value="1" title="Se você já tem 6 produtos, coloque 7 aqui.">
-                </div>
-                <div class="form-group"><label>Nome do Produto</label><input type="text" id="name" placeholder="Ex: Macacão Fit"></div>
+
+            <div id="import-confianca-baixa" class="alert-warning" style="display:none;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Revise com atenção — o texto colado pode não ser uma descrição de produto válida.
             </div>
-            
+
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="name" placeholder="Ex: Macacão Fit"></div>
+
             <div class="form-group"><label>Categoria</label>
                 <select id="category">
+                    <option value="" selected disabled>Selecione uma categoria...</option>
                     <option value="Macacões">Macacões</option>
                     <option value="Conjuntos de Calça e Legging">Conjuntos de Calça e Legging</option>
                     <option value="Conjuntos de Shorts e Bermuda">Conjuntos de Shorts e Bermuda</option>
@@ -69,163 +199,690 @@
             <div class="form-group"><label>Preço (R$)</label><input type="number" id="price" step="0.01" placeholder="Ex: 189.90"></div>
 
             <div class="form-group">
-                <label>Links de Mídia (Fotos)</label>
-                <div class="helper-box">
-                    <p><i class="fa-solid fa-wrench"></i> Dica de Hospedagem</p>
-                    Use o <a href="https://postimages.org/" target="_blank">Postimages</a> e copie o <strong>"Link direto"</strong>.
+                <label>URL da Imagem (Fornecedor)</label>
+                <div style="display:flex; gap: var(--space-xs); align-items:flex-start;">
+                    <input type="url" id="import-imagem-url" placeholder="https://cdn-fornecedor.com/caminho/imagem.jpg" style="flex:1;">
+                    <button type="button" class="btn btn-import-img" style="width:auto; white-space:nowrap; margin-top:0; flex-shrink:0;" onclick="baixarImagemFornecedor()"><i class="fa-solid fa-download"></i> Baixar Imagem</button>
                 </div>
-                <textarea id="images" placeholder="Cole um link direto por linha.&#10;Ex: https://i.postimg.cc/...foto1.jpg"></textarea>
+                <p style="font-size:0.75rem; color:var(--text-gray); margin-top:6px;">Cole o link direto do arquivo de imagem (não da página do produto). Se o download falhar, use o upload manual abaixo.</p>
+                <p id="import-imagem-status" style="font-size:0.8rem; margin-top:6px; min-height:1em;"></p>
+                <div id="imagens-importadas-preview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"></div>
             </div>
 
             <div class="form-group">
-                <label>Tamanhos Disponíveis</label>
-                <div class="size-options">
-                    <label><input type="checkbox" class="size-checkbox" value="P"><span class="size-label">P</span></label>
-                    <label><input type="checkbox" class="size-checkbox" value="M"><span class="size-label">M</span></label>
-                    <label><input type="checkbox" class="size-checkbox" value="G"><span class="size-label">G</span></label>
-                    <label><input type="checkbox" class="size-checkbox" value="GG"><span class="size-label">GG</span></label>
-                    <label><input type="checkbox" class="size-checkbox" value="U"><span class="size-label">ÚNICO (U)</span></label>
+                <label>Fotos / Vídeos do Produto</label>
+                <div class="helper-box">
+                    <p><i class="fa-solid fa-cloud-arrow-up"></i> Upload direto</p>
+                    Selecione uma ou mais imagens (ou vídeos curtos .mp4/.webm) do seu computador — vão direto para o Supabase Storage. Até 8MB por arquivo.
+                </div>
+                <input type="file" id="images" accept="image/*,video/mp4,video/webm" multiple>
+                <p id="images-status" style="font-size:0.8rem; color:var(--text-gray); margin-top:6px; min-height:1em;"></p>
+            </div>
+
+            <div class="form-group">
+                <label>Tamanhos e Estoque</label>
+                <div class="size-stock-options" id="sizeStockOptions">
+                    <div class="size-stock-row" data-size="P"><label class="size-toggle"><input type="checkbox" class="size-checkbox" value="P"><span class="size-label">P</span></label><input type="number" class="stock-input" min="0" step="1" placeholder="Estoque" disabled></div>
+                    <div class="size-stock-row" data-size="M"><label class="size-toggle"><input type="checkbox" class="size-checkbox" value="M"><span class="size-label">M</span></label><input type="number" class="stock-input" min="0" step="1" placeholder="Estoque" disabled></div>
+                    <div class="size-stock-row" data-size="G"><label class="size-toggle"><input type="checkbox" class="size-checkbox" value="G"><span class="size-label">G</span></label><input type="number" class="stock-input" min="0" step="1" placeholder="Estoque" disabled></div>
+                    <div class="size-stock-row" data-size="GG"><label class="size-toggle"><input type="checkbox" class="size-checkbox" value="GG"><span class="size-label">GG</span></label><input type="number" class="stock-input" min="0" step="1" placeholder="Estoque" disabled></div>
+                    <div class="size-stock-row" data-size="U"><label class="size-toggle"><input type="checkbox" class="size-checkbox" value="U"><span class="size-label">ÚNICO (U)</span></label><input type="number" class="stock-input" min="0" step="1" placeholder="Estoque" disabled></div>
                 </div>
             </div>
 
-            <div class="form-group"><label>Descrição do Produto</label><textarea id="desc" placeholder="Detalhes do tecido, modelagem..."></textarea></div>
-            <div class="form-group"><label>Link de Pagamento</label><input type="text" id="paymentLink" placeholder="Deixe vazio para chamar no WhatsApp"></div>
-            
-            <button class="btn btn-add" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Adicionar à Lista</button>
+            <div class="form-group"><label>Descrição Curta</label><textarea id="desc" placeholder="Texto de marketing, curto e atrativo, pra exibir na página do produto..."></textarea></div>
+
+            <div class="form-group"><label>Composição e Especificações</label><textarea id="composicao" placeholder="Tecido, elasticidade, garantia, se tem bojo, etc."></textarea></div>
+
+            <div class="form-group">
+                <label class="ativo-toggle"><input type="checkbox" id="ativo" checked> Produto ativo (visível na loja)</label>
+            </div>
+
+            <button class="btn btn-add" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Salvar Produto</button>
         </div>
 
         <div class="card">
-            <h2>Código Pronto</h2>
+            <h2>Produtos Cadastrados</h2>
             <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
-                Vá adicionando seus produtos. Quando terminar, copie o código inteiro abaixo e cole no seu arquivo <strong>script.js</strong>.
+                Lista ao vivo da tabela <strong>produtos</strong> no Supabase. Desative ou exclua um produto diretamente aqui.
             </p>
-            
-            <div class="added-list-container">
-                <h3>📦 Produtos na Lista Atual (<span id="count">0</span>)</h3>
+
+            <div class="added-list-container" style="max-height: 60vh;">
+                <h3><i class="fa-solid fa-boxes-stacked"></i> Total (<span id="count">0</span>)</h3>
                 <ul class="added-list" id="addedList">
-                    <li style="color:#666; border:none; justify-content:center;">Nenhum produto adicionado ainda...</li>
+                    <li style="color:#666; border:none; justify-content:center;">Carregando...</li>
                 </ul>
             </div>
+        </div>
 
-            <textarea id="codeOutput" readonly style="margin-top: 15px;"></textarea>
-            
-            <button class="btn btn-copy" onclick="copyCode()"><i class="fa-regular fa-copy"></i> Copiar Código Completo</button>
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2><i class="fa-solid fa-store"></i> Configurações da Loja</h2>
+            <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
+                Textos compartilhados entre todos os produtos, editados uma vez só (tabela <strong>configuracoes_loja</strong>).
+            </p>
+
+            <div class="form-group">
+                <label>Cuidados e Lavagem</label>
+                <textarea id="config-cuidados" placeholder="Instruções de lavagem e cuidados, exibidas na aba \"Cuidados\" de todos os produtos..."></textarea>
+            </div>
+            <p id="config-cuidados-status" style="font-size:0.8rem; color:var(--text-gray); min-height:1em; margin-bottom:6px;"></p>
+            <button class="btn btn-add" onclick="salvarCuidadosLavagem(this)"><i class="fa-solid fa-floppy-disk"></i> Salvar Cuidados e Lavagem</button>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2><i class="fa-solid fa-warehouse"></i> Estoque</h2>
+            <p style="font-size: 0.85rem; color:#aaa; margin-bottom:15px; line-height: 1.4;">
+                <span class="stock-dot ok"></span> disponível para venda agora &nbsp;·&nbsp;
+                <span class="stock-dot out"></span> esgotado (nenhum tamanho com estoque). O indicador aparece ao lado de cada produto na lista acima.
+            </p>
+
+            <div class="added-list-container" style="max-height: 40vh;">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> Estoque Baixo — ≤ 2 unidades (<span id="lowStockCount">0</span>)</h3>
+                <ul class="added-list" id="lowStockList">
+                    <li style="color:#666; border:none; justify-content:center;">Carregando...</li>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <script>
-        let productList = [];
+    <script type="module">
+        import { supabase } from "./supabaseClient.js";
+        window.supabase = supabase;
 
-        function formatProductToSingleLine(p) {
-            // Formata a string de forma elegante: { id: 1, name: "...", ... } em uma linha só
-            const imgs = JSON.stringify(p.images);
-            const sizes = JSON.stringify(p.sizes);
-            // Limpa quebras de linha da descrição para não quebrar o layout do código
-            const cleanDesc = p.description.replace(/\n/g, ' '); 
-            
-            return `    { id: ${p.id}, name: "${p.name}", category: "${p.category}", price: ${p.price.toFixed(2)}, images: ${imgs}, description: "${cleanDesc}", sizes: ${sizes}, paymentLink: "${p.paymentLink}" }`;
+        // admin.html não usa mais Firebase/Firestore — produtos, variações e
+        // upload de imagem são 100% Supabase (Postgres + Storage). Ver
+        // CLAUDE.md, seção "Migração de produtos".
+        const ADMIN_EMAIL = 'othaviocampbell2015@gmail.com';
+
+        // Alterna entre "Entrar" e "Criar conta" — necessário porque o admin
+        // ainda não tem conta no Supabase Auth (é uma identidade nova, separada
+        // do Firebase Auth); usar uma única vez para criar a conta e depois
+        // sempre "Entrar".
+        let modoCriarConta = false;
+
+        window.alternarModoLogin = function(e) {
+            if (e) e.preventDefault();
+            modoCriarConta = !modoCriarConta;
+            document.getElementById('login-submit-btn').innerText = modoCriarConta ? 'Criar conta' : 'Entrar';
+            document.getElementById('login-toggle-link').innerText = modoCriarConta ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta';
+            document.getElementById('login-error').textContent = '';
+        };
+
+        window.fazerLogin = async function() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            errEl.textContent = '';
+            try {
+                if (modoCriarConta) {
+                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
+                    if (error) throw error;
+                    if (!data.session) {
+                        errEl.textContent = 'Conta criada! Verifique seu e-mail para confirmar antes de entrar.';
+                        return;
+                    }
+                } else {
+                    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                    if (error) throw error;
+                }
+            } catch (e) {
+                errEl.textContent = 'E-mail ou senha inválidos.';
+            }
+        };
+
+        window.fazerLogout = async function() {
+            await supabase.auth.signOut();
+        };
+
+        // onAuthStateChange dispara imediatamente com a sessão atual (igual ao
+        // onAuthStateChanged do Firebase), depois a cada login/logout/refresh de token.
+        supabase.auth.onAuthStateChange((_event, session) => {
+            const user = session?.user || null;
+            if (user && (user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'grid';
+                document.getElementById('logout-btn').style.display = 'block';
+                window.loadProducts();
+                window.carregarCuidadosLavagem();
+            } else {
+                if (user) supabase.auth.signOut(); // logado mas não é o admin
+                document.getElementById('app-content').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-password').value = '';
+            }
+        });
+    </script>
+
+    <script>
+        // Ativa/desativa o campo de estoque conforme o checkbox do tamanho
+        document.querySelectorAll('.size-stock-row').forEach(row => {
+            const checkbox = row.querySelector('.size-checkbox');
+            const stockInput = row.querySelector('.stock-input');
+            checkbox.addEventListener('change', () => {
+                stockInput.disabled = !checkbox.checked;
+                if (!checkbox.checked) stockInput.value = '';
+            });
+        });
+
+        // Margem de multiplicação — persiste em localStorage pra não precisar
+        // redigitar toda vez que for importar um produto novo.
+        const MARGEM_STORAGE_KEY = 'campbell_margem_multiplicacao';
+        const margemInput = document.getElementById('import-margem');
+        const margemSalva = localStorage.getItem(MARGEM_STORAGE_KEY);
+        if (margemSalva) margemInput.value = margemSalva;
+        margemInput.addEventListener('input', () => {
+            if (margemInput.value) localStorage.setItem(MARGEM_STORAGE_KEY, margemInput.value);
+        });
+
+        // Mapeia os tamanhos que a IA devolve pro conjunto fixo de tamanhos do
+        // formulário (P/M/G/GG/U) — o que não bater é ignorado, já que o form
+        // só suporta esse conjunto fechado de checkboxes.
+        function normalizarTamanho(t) {
+            const s = (t || '').trim().toUpperCase();
+            if (s === 'P' || s === 'M' || s === 'G' || s === 'GG') return s;
+            if (s === 'U' || s === 'ÚNICO' || s === 'UNICO') return 'U';
+            return null;
         }
 
-        function updateOutput() {
-            const listEl = document.getElementById('addedList');
-            const countEl = document.getElementById('count');
-            const outputEl = document.getElementById('codeOutput');
+        window.processarImportacao = async function() {
+            const texto = document.getElementById('import-texto').value.trim();
+            const statusEl = document.getElementById('import-status');
 
-            countEl.innerText = productList.length;
-
-            if (productList.length === 0) {
-                listEl.innerHTML = '<li style="color:#666; border:none; justify-content:center;">Nenhum produto adicionado ainda...</li>';
-                outputEl.value = 'const products = [\n    // Adicione produtos na esquerda...\n];';
+            if (!texto) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Cole o texto do fornecedor antes de processar.';
                 return;
             }
 
-            // Atualiza a lista visual
-            listEl.innerHTML = productList.map(p => `
-                <li>
-                    <span><strong>#${p.id}</strong> - ${p.name} (R$ ${p.price.toFixed(2).replace('.', ',')})</span>
-                    <button class="delete-btn" onclick="removeProduct(${p.id})" title="Remover"><i class="fa-solid fa-trash"></i></button>
-                </li>
-            `).join('');
+            const margem = parseFloat(margemInput.value);
+            if (isNaN(margem) || margem <= 0) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Margem de multiplicação inválida.';
+                return;
+            }
 
-            // Atualiza o código fonte (Cada produto em 1 linha!)
-            let finalCode = "const products = [\n";
-            finalCode += productList.map(formatProductToSingleLine).join(",\n");
-            finalCode += "\n];";
-            
-            outputEl.value = finalCode;
+            const btn = document.querySelector('.btn-import');
+            const oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+            statusEl.style.color = 'var(--text-gray)';
+            statusEl.innerText = '';
+            document.getElementById('import-confianca-baixa').style.display = 'none';
+
+            try {
+                const { data, error } = await window.supabase.functions.invoke('importar-produto', {
+                    body: { texto }
+                });
+
+                if (error) {
+                    let mensagem = error.message || 'Erro ao chamar a IA.';
+                    try {
+                        const corpo = await error.context.json();
+                        if (corpo && corpo.error) mensagem = corpo.error;
+                    } catch {}
+                    throw new Error(mensagem);
+                }
+
+                if (!data || typeof data.nome !== 'string' || typeof data.precoFornecedor !== 'number') {
+                    throw new Error('Resposta da IA veio incompleta.');
+                }
+
+                document.getElementById('name').value = data.nome;
+                document.getElementById('desc').value = data.descricao || '';
+                document.getElementById('price').value = (data.precoFornecedor * margem).toFixed(2);
+
+                // Categoria fica em branco de propósito — força escolha manual
+                // antes de salvar (addProduct() bloqueia o salvamento sem ela).
+                document.getElementById('category').value = '';
+
+                document.querySelectorAll('.size-stock-row').forEach(row => {
+                    row.querySelector('.size-checkbox').checked = false;
+                    row.querySelector('.stock-input').disabled = true;
+                    row.querySelector('.stock-input').value = '';
+                });
+
+                (data.tamanhosDisponiveis || []).forEach(t => {
+                    const tamanho = normalizarTamanho(t);
+                    if (!tamanho) return;
+                    const row = document.querySelector(`.size-stock-row[data-size="${tamanho}"]`);
+                    if (!row) return;
+                    row.querySelector('.size-checkbox').checked = true;
+                    const stockInput = row.querySelector('.stock-input');
+                    stockInput.disabled = false;
+                    stockInput.value = 0;
+                });
+
+                // Não bloqueia preenchimento nem salvamento — só chama atenção
+                // extra antes da confirmação manual, quando a própria IA avalia
+                // que o texto colado pode não ser uma descrição de produto real.
+                document.getElementById('import-confianca-baixa').style.display =
+                    data.confianca === 'baixa' ? 'flex' : 'none';
+
+                statusEl.style.color = 'var(--secondary)';
+                statusEl.innerText = 'Formulário preenchido! Escolha a categoria, confira os dados e ajuste o estoque antes de salvar.';
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Erro: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldHtml;
+            }
+        };
+
+        // Imagens baixadas via URL do fornecedor (já enviadas pro Storage
+        // pela Edge Function) — somadas às escolhidas manualmente no input
+        // de arquivo na hora de salvar. Guardado à parte porque o upload já
+        // aconteceu no servidor; não é um File local esperando envio.
+        let imagensImportadas = [];
+
+        function renderImagensImportadas() {
+            const container = document.getElementById('imagens-importadas-preview');
+            container.innerHTML = imagensImportadas.map(url => `
+                <div style="position:relative;">
+                    <img src="${url}" style="width:64px;height:64px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--border-color);display:block;">
+                    <button type="button" onclick="removerImagemImportada('${url}')" title="Remover" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:1;padding:0;">×</button>
+                </div>
+            `).join('');
         }
 
-        function addProduct() {
+        window.removerImagemImportada = function(url) {
+            imagensImportadas = imagensImportadas.filter(u => u !== url);
+            renderImagensImportadas();
+        };
+
+        window.baixarImagemFornecedor = async function() {
+            const urlInput = document.getElementById('import-imagem-url');
+            const url = urlInput.value.trim();
+            const statusEl = document.getElementById('import-imagem-status');
+
+            if (!url) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Cole a URL da imagem antes de baixar.';
+                return;
+            }
+
+            const btn = document.querySelector('.btn-import-img');
+            const oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            statusEl.style.color = 'var(--text-gray)';
+            statusEl.innerText = 'Baixando imagem...';
+
+            try {
+                const { data, error } = await window.supabase.functions.invoke('importar-imagem', {
+                    body: { url }
+                });
+
+                if (error) {
+                    let mensagem = error.message || 'Erro ao baixar a imagem.';
+                    try {
+                        const corpo = await error.context.json();
+                        if (corpo && corpo.error) mensagem = corpo.error;
+                    } catch {}
+                    throw new Error(mensagem);
+                }
+
+                if (!data || typeof data.url !== 'string') {
+                    throw new Error('Resposta inesperada ao baixar a imagem.');
+                }
+
+                imagensImportadas.push(data.url);
+                renderImagensImportadas();
+                urlInput.value = '';
+                statusEl.style.color = 'var(--secondary)';
+                statusEl.innerText = 'Imagem baixada e adicionada ao produto!';
+            } catch (e) {
+                // Download falhou — não trava o resto do formulário, o admin
+                // segue com o upload manual normal abaixo.
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Não foi possível baixar: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldHtml;
+            }
+        };
+
+        // Corta descricaoCompleta bem antes das instruções de lavagem/cuidados
+        // — esse trecho é igual em todo produto e já vem do texto
+        // compartilhado em configuracoes_loja, não faz sentido duplicar
+        // produto a produto dentro de "Composição e Especificações".
+        function extrairComposicaoDeDescricaoCompleta(descricaoCompleta) {
+            const texto = descricaoCompleta || '';
+            const marcadores = ['Instruções de lavagem', 'Cuidados'];
+            let indiceCorte = -1;
+            marcadores.forEach(marcador => {
+                const idx = texto.toLowerCase().indexOf(marcador.toLowerCase());
+                if (idx !== -1 && (indiceCorte === -1 || idx < indiceCorte)) indiceCorte = idx;
+            });
+            return (indiceCorte === -1 ? texto : texto.slice(0, indiceCorte)).trim();
+        }
+
+        window.processarJsonFornecedor = async function(btn) {
+            const textoJson = document.getElementById('import-json-texto').value.trim();
+            const statusEl = document.getElementById('import-json-status');
+
+            if (!textoJson) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Cole o JSON do fornecedor antes de processar.';
+                return;
+            }
+
+            let dados;
+            try {
+                dados = JSON.parse(textoJson);
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'JSON inválido: ' + e.message;
+                return;
+            }
+
+            if (typeof dados !== 'object' || dados === null || typeof dados.nome !== 'string' || typeof dados.preco !== 'number') {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'JSON incompleto: precisa ter pelo menos "nome" (string) e "preco" (number).';
+                return;
+            }
+
+            const margem = parseFloat(margemInput.value);
+            if (isNaN(margem) || margem <= 0) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Margem de multiplicação inválida.';
+                return;
+            }
+
+            const oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            statusEl.style.color = 'var(--text-gray)';
+            statusEl.innerText = '';
+
+            // Texto/preço/tamanhos não dependem de rede — preenche tudo isso
+            // já, antes de partir pro download (mais lento) das imagens.
+            document.getElementById('name').value = dados.nome;
+            document.getElementById('desc').value = dados.descricaoSimples || '';
+            document.getElementById('composicao').value = extrairComposicaoDeDescricaoCompleta(dados.descricaoCompleta);
+            document.getElementById('price').value = (dados.preco * margem).toFixed(2);
+
+            // Categoria fica em branco de propósito — força escolha manual
+            // antes de salvar (addProduct() bloqueia o salvamento sem ela).
+            document.getElementById('category').value = '';
+
+            document.querySelectorAll('.size-stock-row').forEach(row => {
+                row.querySelector('.size-checkbox').checked = false;
+                row.querySelector('.stock-input').disabled = true;
+                row.querySelector('.stock-input').value = '';
+            });
+            (Array.isArray(dados.tamanhos) ? dados.tamanhos : []).forEach(t => {
+                if (!t || t.disponivel !== true) return;
+                const tamanho = normalizarTamanho(t.tamanho);
+                if (!tamanho) return;
+                const row = document.querySelector(`.size-stock-row[data-size="${tamanho}"]`);
+                if (!row) return;
+                row.querySelector('.size-checkbox').checked = true;
+                const stockInput = row.querySelector('.stock-input');
+                stockInput.disabled = false;
+                stockInput.value = 0;
+            });
+
+            // Imagens: baixa cada URL via a mesma Edge Function do importador
+            // manual de imagem única (importar-imagem), sequencialmente —
+            // falha numa URL não cancela as outras nem trava o formulário.
+            const urls = Array.isArray(dados.imagens) ? dados.imagens : [];
+            let sucesso = 0;
+            const falhas = [];
+            for (let i = 0; i < urls.length; i++) {
+                statusEl.innerText = `Baixando imagem ${i + 1}/${urls.length}...`;
+                try {
+                    const { data, error } = await window.supabase.functions.invoke('importar-imagem', { body: { url: urls[i] } });
+                    if (error) {
+                        let mensagem = error.message || 'Erro ao baixar a imagem.';
+                        try {
+                            const corpo = await error.context.json();
+                            if (corpo && corpo.error) mensagem = corpo.error;
+                        } catch {}
+                        throw new Error(mensagem);
+                    }
+                    if (!data || typeof data.url !== 'string') throw new Error('Resposta inesperada ao baixar a imagem.');
+                    imagensImportadas.push(data.url);
+                    renderImagensImportadas();
+                    sucesso++;
+                } catch (e) {
+                    falhas.push({ url: urls[i], motivo: e.message });
+                }
+            }
+
+            if (falhas.length === 0) {
+                statusEl.style.color = 'var(--secondary)';
+                statusEl.innerText = `Formulário preenchido! ${sucesso} imagem(ns) baixada(s). Escolha a categoria, confira os dados e ajuste o estoque antes de salvar.`;
+            } else {
+                statusEl.style.color = '#eab308';
+                statusEl.innerText = `Formulário preenchido, mas ${falhas.length} de ${urls.length} imagem(ns) falharam ao baixar (${falhas.map(f => f.motivo).join('; ')}). As demais foram adicionadas — revise antes de salvar.`;
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = oldHtml;
+        };
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Deriva o path dentro do bucket a partir da URL pública, pra poder
+        // apagar o arquivo do Storage quando o produto for excluído.
+        function pathFromPublicUrl(url) {
+            const marker = '/storage/v1/object/public/produtos/';
+            const idx = url.indexOf(marker);
+            return idx === -1 ? null : url.slice(idx + marker.length);
+        }
+
+        function sanitizeFileName(name) {
+            return name.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+        }
+
+        async function uploadImages(files, statusEl) {
+            const urls = [];
+            const folder = crypto.randomUUID();
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.size > 8 * 1024 * 1024) throw new Error(`"${file.name}" passa de 8MB.`);
+                statusEl.innerText = `Enviando ${i + 1}/${files.length}...`;
+                const path = `${folder}/${sanitizeFileName(file.name)}`;
+                const { error } = await window.supabase.storage.from('produtos').upload(path, file, { cacheControl: '3600', upsert: false });
+                if (error) throw error;
+                const { data } = window.supabase.storage.from('produtos').getPublicUrl(path);
+                urls.push(data.publicUrl);
+            }
+            statusEl.innerText = '';
+            return urls;
+        }
+
+        let produtosCache = {};
+
+        function renderProductList(produtos) {
+            produtosCache = {};
+            produtos.forEach(p => produtosCache[p.id] = p);
+
+            const listEl = document.getElementById('addedList');
+            const countEl = document.getElementById('count');
+            countEl.innerText = produtos.length;
+
+            if (produtos.length === 0) {
+                listEl.innerHTML = '<li style="color:#666; border:none; justify-content:center;">Nenhum produto cadastrado ainda...</li>';
+                return;
+            }
+
+            listEl.innerHTML = produtos.map(p => {
+                const temEstoque = (p.variacoes_produto || []).some(v => v.estoque > 0);
+                return `
+                <li>
+                    <span>
+                        <span class="stock-dot ${temEstoque ? 'ok' : 'out'}" title="${temEstoque ? 'Disponível para venda' : 'Esgotado'}"></span>
+                        <span class="status-badge ${p.ativo !== false ? 'on' : 'off'}">${p.ativo !== false ? 'Ativo' : 'Inativo'}</span>
+                        ${escapeHtml(p.nome)} (R$ ${Number(p.preco).toFixed(2).replace('.', ',')})
+                    </span>
+                    <span>
+                        <button class="toggle-btn" onclick="toggleAtivo('${p.id}', ${p.ativo === false})" title="${p.ativo !== false ? 'Desativar' : 'Ativar'}"><i class="fa-solid ${p.ativo !== false ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                        <button class="delete-btn" onclick="removeProduct('${p.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    </span>
+                </li>
+            `;
+            }).join('');
+        }
+
+        function renderLowStock(produtos) {
+            const listEl = document.getElementById('lowStockList');
+            const countEl = document.getElementById('lowStockCount');
+
+            const itens = [];
+            produtos.forEach(p => {
+                (p.variacoes_produto || []).forEach(v => {
+                    if (v.estoque <= 2) itens.push({ nome: p.nome, tamanho: v.tamanho, estoque: v.estoque });
+                });
+            });
+            itens.sort((a, b) => a.estoque - b.estoque);
+
+            countEl.innerText = itens.length;
+
+            if (itens.length === 0) {
+                listEl.innerHTML = '<li style="color:#666; border:none; justify-content:center;">Nenhum item com estoque baixo. 🎉</li>';
+                return;
+            }
+
+            listEl.innerHTML = itens.map(i => `
+                <li class="low-stock-item">
+                    <span>${escapeHtml(i.nome)} — Tam: ${escapeHtml(i.tamanho)}</span>
+                    <span class="low-stock-qty ${i.estoque === 0 ? 'zero' : 'low'}">${i.estoque === 0 ? 'Esgotado' : i.estoque + ' un.'}</span>
+                </li>
+            `).join('');
+        }
+
+        window.loadProducts = async function() {
+            const { data, error } = await window.supabase.from('produtos').select('*, variacoes_produto(tamanho, estoque)').order('criado_em', { ascending: false });
+            if (error) { console.error(error); return; }
+            renderLowStock(data);
+            renderProductList(data);
+        };
+
+        window.carregarCuidadosLavagem = async function() {
+            const { data, error } = await window.supabase.from('configuracoes_loja').select('valor').eq('chave', 'cuidados_lavagem').maybeSingle();
+            if (error) { console.error(error); return; }
+            document.getElementById('config-cuidados').value = data?.valor || '';
+        };
+
+        window.salvarCuidadosLavagem = async function(btn) {
+            const valor = document.getElementById('config-cuidados').value.trim();
+            const statusEl = document.getElementById('config-cuidados-status');
+            btn.disabled = true;
+            try {
+                const { error } = await window.supabase.from('configuracoes_loja').upsert({ chave: 'cuidados_lavagem', valor, atualizado_em: new Date().toISOString() }, { onConflict: 'chave' });
+                if (error) throw error;
+                statusEl.style.color = 'var(--secondary)';
+                statusEl.innerText = 'Salvo!';
+                setTimeout(() => { statusEl.innerText = ''; }, 2500);
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = 'Erro ao salvar: ' + e.message;
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.addProduct = async function() {
             const nameEl = document.getElementById('name');
-            const idEl = document.getElementById('startId');
-            
-            const currentId = parseInt(idEl.value);
             const name = nameEl.value.trim();
             const category = document.getElementById('category').value;
             const price = parseFloat(document.getElementById('price').value);
             const desc = document.getElementById('desc').value.trim();
-            const paymentLink = document.getElementById('paymentLink').value.trim() || "#";
-            
-            const imagesRaw = document.getElementById('images').value;
-            const images = imagesRaw.split('\n').map(link => link.trim()).filter(link => link !== "");
-            const selectedSizes = Array.from(document.querySelectorAll('.size-checkbox:checked')).map(cb => cb.value);
+            const composicao = document.getElementById('composicao').value.trim();
+            const ativo = document.getElementById('ativo').checked;
+            const filesInput = document.getElementById('images');
+            const files = Array.from(filesInput.files);
+            const statusEl = document.getElementById('images-status');
 
-            if (!name || isNaN(price) || images.length === 0 || selectedSizes.length === 0) {
-                alert("Obrigatório: Nome, Preço, Pelo menos 1 Tamanho e 1 Link de Foto!"); 
+            const variacoes = Array.from(document.querySelectorAll('.size-stock-row')).filter(row => row.querySelector('.size-checkbox').checked).map(row => ({
+                tamanho: row.dataset.size,
+                estoque: parseInt(row.querySelector('.stock-input').value) || 0
+            }));
+
+            if (!name || !category || isNaN(price) || (files.length === 0 && imagensImportadas.length === 0) || variacoes.length === 0) {
+                alert("Obrigatório: Nome, Categoria, Preço, pelo menos 1 Tamanho e 1 Foto/Vídeo (upload manual ou importada por URL)!");
                 return;
             }
 
-            productList.push({
-                id: currentId,
-                name: name,
-                category: category,
-                price: price,
-                images: images,
-                description: desc || "Sem descrição.",
-                sizes: selectedSizes,
-                paymentLink: paymentLink
-            });
-            
-            // Aumenta o ID automaticamente para o próximo produto
-            idEl.value = currentId + 1;
-            
-            updateOutput();
-            
-            // Efeito de sucesso no botão
             const btn = document.querySelector('.btn-add');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Adicionado com Sucesso!';
-            btn.style.background = "var(--secondary)";
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-plus"></i> Adicionar à Lista';
-                btn.style.background = "var(--primary)";
-            }, 1500);
-            
-            // Limpa apenas os campos de dados, mantendo o ID
-            nameEl.value = '';
-            document.getElementById('price').value = '';
-            document.getElementById('images').value = '';
-            document.getElementById('desc').value = '';
-            document.getElementById('paymentLink').value = '';
-            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
-            nameEl.focus();
-        }
+            btn.disabled = true;
+            try {
+                const imagensUpload = files.length > 0 ? await uploadImages(files, statusEl) : [];
+                const imagens = [...imagensImportadas, ...imagensUpload];
 
-        function removeProduct(id) {
-            productList = productList.filter(p => p.id !== id);
-            updateOutput();
-        }
+                const { data: produto, error: erroProduto } = await window.supabase
+                    .from('produtos')
+                    .insert({ nome: name, categoria: category, preco: price, descricao: desc || "Sem descrição.", composicao_especificacoes: composicao || null, imagens, ativo })
+                    .select()
+                    .single();
+                if (erroProduto) throw erroProduto;
 
-        function copyCode() {
-            const copyText = document.getElementById("codeOutput");
-            if (productList.length === 0) return alert("Adicione produtos primeiro!");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
-            alert("✅ Código copiado!\n\nAgora vá no seu arquivo script.js, apague a lista antiga e cole esta nova!");
-        }
-        
-        // Inicializa tela
-        updateOutput();
+                const { error: erroVariacoes } = await window.supabase
+                    .from('variacoes_produto')
+                    .insert(variacoes.map(v => ({ produto_id: produto.id, tamanho: v.tamanho, estoque: v.estoque })));
+                if (erroVariacoes) throw erroVariacoes;
+
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvo com Sucesso!';
+                btn.style.background = "var(--secondary)";
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-plus"></i> Salvar Produto';
+                    btn.style.background = "var(--primary)";
+                    btn.disabled = false;
+                }, 1500);
+
+                nameEl.value = '';
+                document.getElementById('category').value = '';
+                document.getElementById('price').value = '';
+                filesInput.value = '';
+                document.getElementById('desc').value = '';
+                document.getElementById('composicao').value = '';
+                document.getElementById('ativo').checked = true;
+                document.querySelectorAll('.size-stock-row').forEach(row => {
+                    row.querySelector('.size-checkbox').checked = false;
+                    row.querySelector('.stock-input').disabled = true;
+                    row.querySelector('.stock-input').value = '';
+                });
+                imagensImportadas = [];
+                renderImagensImportadas();
+                document.getElementById('import-imagem-url').value = '';
+                document.getElementById('import-imagem-status').innerText = '';
+                document.getElementById('import-confianca-baixa').style.display = 'none';
+                nameEl.focus();
+
+                window.loadProducts();
+            } catch (e) {
+                statusEl.innerText = '';
+                alert("Erro ao salvar produto: " + e.message);
+                btn.disabled = false;
+            }
+        };
+
+        window.toggleAtivo = async function(id, novoValor) {
+            const { error } = await window.supabase.from('produtos').update({ ativo: novoValor }).eq('id', id);
+            if (error) { alert("Erro ao atualizar produto: " + error.message); return; }
+            window.loadProducts();
+        };
+
+        window.removeProduct = async function(id) {
+            if (!confirm("Excluir este produto permanentemente?")) return;
+
+            const produto = produtosCache[id];
+            const paths = (produto?.imagens || []).map(pathFromPublicUrl).filter(Boolean);
+            if (paths.length > 0) {
+                const { error: erroStorage } = await window.supabase.storage.from('produtos').remove(paths);
+                if (erroStorage) console.error('Erro ao remover arquivos do Storage:', erroStorage);
+            }
+
+            const { error } = await window.supabase.from('produtos').delete().eq('id', id);
+            if (error) { alert("Erro ao excluir produto: " + error.message); return; }
+            window.loadProducts();
+        };
     </script>
 </body>
 </html>

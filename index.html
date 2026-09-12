@@ -4,14 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campbell Moda Fitness | Estilo e Performance</title>
+    <link rel="icon" href="favicon/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/+esm" } }
+    </script>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <!-- <div class="top-bar">
-        <p>🚚 Frete Grátis acima de R$ 299,00 | 💳 10% OFF no PIX</p>
+        <p><i class="fa-solid fa-truck"></i> Frete Grátis acima de R$ 299,00 | <i class="fa-solid fa-credit-card"></i> 10% OFF no PIX</p>
     </div> -->
 
     <header id="header">
@@ -27,9 +36,10 @@
             </nav>
             
             <div style="display:flex; align-items:center; gap: 15px;">
+                <button class="nav-toggle" onclick="toggleMobileNav()" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
                 <div style="position: relative;">
-                    <button id="login-btn" onclick="toggleUserProfile()" class="btn-login-header" style="background:transparent; border:1px solid var(--primary); color:white; padding:6px 15px; border-radius:20px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-brands fa-google"></i> Entrar
+                    <button id="login-btn" onclick="abrirModalLogin()" class="btn-login-header" style="background:transparent; border:1px solid var(--primary); color:white; padding:12px 16px; min-height:44px; border-radius:22px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:8px; box-sizing:border-box;">
+                        <i class="fa-solid fa-right-to-bracket"></i> Entrar
                     </button>
                     
                     <div id="user-menu" class="user-menu">
@@ -70,7 +80,7 @@
     </section>
 
     <main class="container" id="destaques">
-        <div class="section-title"><h2>🔥 Destaques da Semana</h2><div class="line"></div></div>
+        <div class="section-title"><h2><i class="fa-solid fa-fire"></i> Destaques da Semana</h2><div class="line"></div></div>
         <div id="grid-destaques" class="product-grid"></div>
     </main>
     
@@ -91,7 +101,7 @@
 
     <div class="floating-buttons">
         <a href="https://www.instagram.com/campbellmodafitness/" target="_blank" class="float-btn insta-btn"><i class="fa-brands fa-instagram"></i></a>
-        <a href="https://wa.me/5532984192045?text=Ol%C3%A1%20Campbell!%20Vim%20pelo%20site%20e%20estou%20com%20d%C3%BAvidas." target="_blank" class="float-btn whats-btn"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://wa.me/5532984192045?text=Ol%C3%A1%2C%20Campbell%20Moda%20Fitness!%20Vim%20pelo%20site%20e%20estou%20com%20uma%20d%C3%BAvida." target="_blank" class="float-btn whats-btn"><i class="fa-brands fa-whatsapp"></i></a>
     </div>
 
     <div id="cart-sidebar" class="cart-sidebar">
@@ -104,6 +114,15 @@
             <div class="cart-form">
                 <h4><i class="fa-regular fa-user"></i> Seus Dados</h4>
                 <input type="text" id="client-name" placeholder="Nome Completo">
+                <div id="client-phone-group" style="display:none;">
+                    <input type="tel" id="client-phone" placeholder="(XX) 9XXXX-XXXX" maxlength="15">
+                    <p id="client-phone-error" style="font-size:0.75rem; color:#ef4444; margin:4px 0 0; min-height:1em;"></p>
+                </div>
+                <h4><i class="fa-solid fa-truck-fast"></i> Tipo de Entrega</h4>
+                <select id="client-tipo-entrega">
+                    <option value="Entrega">Entrega no endereço</option>
+                    <option value="Retirada">Retirada no local</option>
+                </select>
                 <h4><i class="fa-solid fa-map-location-dot"></i> Entrega</h4>
                 <div class="form-row">
                     <input type="tel" id="client-cep" placeholder="CEP" maxlength="9" onblur="buscarCep('client')">
@@ -113,7 +132,12 @@
                 <input type="text" id="client-comp" placeholder="Complemento">
                 <div class="form-row"><input type="text" id="client-neighborhood" placeholder="Bairro" disabled><input type="text" id="client-city" placeholder="Cidade" disabled><input type="text" id="client-uf" placeholder="UF" style="width: 60px;" disabled></div>
                 <h4><i class="fa-regular fa-credit-card"></i> Pagamento</h4>
-                <select id="client-payment"><option value="PIX">PIX (Aprovação Imediata)</option><option value="Cartão de Crédito">Cartão de Crédito</option></select>
+                <select id="client-payment" onchange="updatePaymentNote()">
+                    <option value="PIX">PIX</option>
+                    <option value="Cartão">Cartão</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+                <p id="payment-note" style="font-size: 0.75rem; color: var(--text-gray); margin-top: 4px; display: none;"></p>
             </div>
         </div>
         <div class="cart-footer">
@@ -135,7 +159,6 @@
                 <span class="category" id="modal-category"></span>
                 <h2 id="modal-title"></h2>
                 <span class="price" id="modal-price"></span>
-                <p class="modal-desc" id="modal-desc"></p>
                 <div class="virtual-fitting">
                     <h4><i class="fa-solid fa-ruler-combined"></i> Provador Virtual</h4>
                     <div class="fitting-inputs">
@@ -148,6 +171,48 @@
                     <button class="btn-modal-cart" onclick="addToCart(false)">ADICIONAR AO CARRINHO</button>
                     <button class="btn-modal-buy" onclick="addToCart(true)"><i class="fa-solid fa-bolt"></i> COMPRAR AGORA</button>
                 </div>
+                <div class="product-tabs">
+                    <div class="product-tabs-bar" role="tablist">
+                        <button class="product-tab active" data-tab="descricao" role="tab" onclick="switchProductTab('descricao')">Descrição</button>
+                        <button class="product-tab" data-tab="tecnico" role="tab" onclick="switchProductTab('tecnico')">Detalhes técnicos</button>
+                        <button class="product-tab" data-tab="cuidados" role="tab" onclick="switchProductTab('cuidados')">Cuidados</button>
+                    </div>
+                    <div class="product-tabs-content">
+                        <div class="product-tab-panel active" id="tab-panel-descricao" role="tabpanel"><p id="modal-desc"></p></div>
+                        <div class="product-tab-panel" id="tab-panel-tecnico" role="tabpanel"><p id="modal-composicao"></p></div>
+                        <div class="product-tab-panel" id="tab-panel-cuidados" role="tabpanel"><p id="modal-cuidados"></p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-login" class="info-modal-overlay">
+        <div class="info-modal-content" style="max-width: 380px;">
+            <button class="close-modal" onclick="closeInstitutional('modal-login')">&times;</button>
+            <h2 id="login-modal-title" style="text-align:center;">Entrar</h2>
+            <div class="cart-form" style="background:transparent; padding:0; border:none;">
+                <div id="login-nome-group" style="display:none;">
+                    <label>Nome completo</label>
+                    <input type="text" id="login-nome" placeholder="Seu nome completo">
+                </div>
+                <label>E-mail</label>
+                <input type="email" id="login-email" placeholder="seu@email.com">
+                <label>Senha</label>
+                <input type="password" id="login-senha" placeholder="Mínimo 6 caracteres">
+                <p id="login-erro" style="color:#ff4444; font-size:0.8rem; min-height:1em; margin-top:5px;"></p>
+                <button id="login-submit-btn" onclick="enviarLoginEmail()" class="cta-button" style="width:100%; text-align:center; border:none; cursor:pointer; display:block; box-sizing:border-box;">Entrar</button>
+                <p style="text-align:center; font-size:0.85rem; margin-top:12px;">
+                    <a href="#" id="login-toggle-link" onclick="alternarModoLogin(event)">Não tem conta? Criar conta</a>
+                </p>
+                <div style="display:flex; align-items:center; gap:10px; margin:15px 0; color:#666; font-size:0.75rem;">
+                    <div style="flex:1; height:1px; background:#333;"></div>OU<div style="flex:1; height:1px; background:#333;"></div>
+                </div>
+                <button onclick="fazerLogin()" class="add-btn" style="display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fa-brands fa-google"></i> Continuar com Google</button>
+                <!-- Login com Apple: ativar quando o provider 'apple' estiver configurado
+                     no Supabase Dashboard (Authentication > Providers) e no Apple Developer.
+                <button onclick="fazerLoginApple()" class="add-btn" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px;"><i class="fa-brands fa-apple"></i> Continuar com Apple</button>
+                -->
             </div>
         </div>
     </div>
@@ -156,9 +221,22 @@
         <div class="info-modal-content" style="text-align: left;">
             <button class="close-modal" onclick="closeInstitutional('modal-profile')">&times;</button>
             <h2 style="text-align:center;"><i class="fa-solid fa-user-pen"></i> Meus Dados</h2>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:15px;">
+                <div style="position:relative; width:88px; height:88px;">
+                    <img id="profile-avatar-img" style="width:88px; height:88px; border-radius:50%; object-fit:cover; display:none; background:var(--surface-alt);">
+                    <div id="profile-avatar-fallback" style="width:88px; height:88px; border-radius:50%; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--text-gray); border:1px solid var(--border-color);">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+                <label for="profile-photo-input" style="cursor:pointer; color:var(--primary); font-size:0.85rem; font-weight:600;">
+                    <i class="fa-solid fa-camera"></i> Trocar foto
+                </label>
+                <input type="file" id="profile-photo-input" accept="image/*" style="display:none;" onchange="onProfilePhotoSelected(this)">
+                <p id="profile-avatar-status" style="font-size:0.75rem; color:var(--text-gray); min-height:1em; margin:0;"></p>
+            </div>
             <div class="cart-form" style="background:transparent; padding:0; border:none;">
-                <label style="color:#888; font-size:0.8rem;">Nome (Google)</label><input type="text" id="profile-name" disabled style="opacity:0.6;">
-                <label style="color:#888; font-size:0.8rem;">E-mail (Google)</label><input type="text" id="profile-email" disabled style="opacity:0.6;">
+                <label style="color:#888; font-size:0.8rem;">Nome</label><input type="text" id="profile-name" placeholder="Seu nome completo">
+                <label style="color:#888; font-size:0.8rem;">E-mail</label><input type="text" id="profile-email" disabled style="opacity:0.6;">
                 
                 <label style="color:var(--primary); font-size:0.8rem; margin-top:10px; display:block;">CEP Padrão</label>
                 <input type="tel" id="profile-cep" placeholder="Apenas números" maxlength="9" onblur="buscarCep('profile')">
@@ -176,8 +254,9 @@
                 </div>
                 
                 <label style="color:var(--primary); font-size:0.8rem; margin-top:10px; display:block;">Telefone / WhatsApp</label>
-                <input type="text" id="profile-phone" placeholder="(XX) 9XXXX-XXXX">
-                
+                <input type="tel" id="profile-phone" placeholder="(XX) 9XXXX-XXXX" maxlength="15">
+                <p id="profile-phone-error" style="font-size:0.75rem; color:#ef4444; margin:4px 0 0; min-height:1em;"></p>
+
                 <button onclick="saveUserProfile()" class="checkout-btn" style="margin-top:15px; justify-content:center;">Salvar Dados</button>
             </div>
         </div>
@@ -203,9 +282,47 @@
         </div>
     </div>
 
-    <div id="modal-sobre" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-sobre')">&times;</button><h2>Sobre a Campbell</h2><div class="info-text"><p><strong>Potencialize sua performance.</strong></p><p>A Campbell Moda Fitness nasceu com o propósito de unir tecnologia têxtil e design.</p></div></div></div>
-    <div id="modal-trocas" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-trocas')">&times;</button><h2>Trocas e Devoluções</h2><div class="info-text"><p>1ª troca grátis em até 7 dias.</p></div></div></div>
-    <div id="modal-medidas" class="info-modal-overlay"><div class="info-modal-content"><button class="close-modal" onclick="closeInstitutional('modal-medidas')">&times;</button><h2>Guia de Medidas</h2><div class="info-text"><table style="width:100%; text-align:center; color:#ccc; border-collapse: collapse;"><tr><th style="border-bottom:1px solid #333; padding:10px;">Tam</th><th style="border-bottom:1px solid #333;">Manequim</th></tr><tr><td style="padding:10px;">P</td><td>36-38</td></tr><tr><td style="padding:10px;">M</td><td>40-42</td></tr><tr><td style="padding:10px;">G</td><td>44-46</td></tr><tr><td style="padding:10px;">GG</td><td>48</td></tr></table></div></div></div>
+    <div id="modal-sobre" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-sobre')">&times;</button>
+            <h2>Sobre a Campbell</h2>
+            <div class="info-text">
+                <p>A Campbell Fitness nasceu para vestir quem treina com estilo e conforto. Trabalhamos com peças fitness pensadas para acompanhar a rotina de treino sem abrir mão da estética. Cada peça é selecionada com cuidado, priorizando tecido de qualidade, caimento e durabilidade. Atendemos com entrega rápida na nossa cidade e atendimento direto pelo WhatsApp, e seguimos expandindo para atender clientes em todo o Brasil.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-trocas" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-trocas')">&times;</button>
+            <h2>Trocas e Devoluções</h2>
+            <div class="info-text">
+                <p>Aceitamos troca em até 3 dias corridos após o recebimento do produto, somente por tamanho ou cor do mesmo modelo, sujeita à disponibilidade em estoque. O produto precisa estar sem uso, sem lavagem, com etiquetas e sem manchas ou odores. Não realizamos reembolso do valor pago, apenas troca por outro item de valor equivalente. Para solicitar, entre em contato pelo WhatsApp informando o número do pedido em até 3 dias após o recebimento.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-medidas" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInstitutional('modal-medidas')">&times;</button>
+            <h2>Guia de Medidas</h2>
+            <div class="info-text">
+                <p>Use a tabela abaixo como referência para escolher o tamanho ideal. Em caso de dúvida entre dois tamanhos, recomendamos optar pelo maior.</p>
+                <table style="width:100%; text-align:center; color: var(--text-gray); border-collapse: collapse; margin-top: var(--space-sm);">
+                    <tr>
+                        <th style="border-bottom:1px solid var(--border-color); padding:10px; color: var(--text-white);">Tamanho</th>
+                        <th style="border-bottom:1px solid var(--border-color); padding:10px; color: var(--text-white);">Busto (cm)</th>
+                        <th style="border-bottom:1px solid var(--border-color); padding:10px; color: var(--text-white);">Cintura (cm)</th>
+                        <th style="border-bottom:1px solid var(--border-color); padding:10px; color: var(--text-white);">Quadril (cm)</th>
+                    </tr>
+                    <tr><td style="padding:10px;">P</td><td>82 – 86</td><td>62 – 66</td><td>88 – 92</td></tr>
+                    <tr><td style="padding:10px;">M</td><td>87 – 91</td><td>67 – 71</td><td>93 – 97</td></tr>
+                    <tr><td style="padding:10px;">G</td><td>92 – 96</td><td>72 – 76</td><td>98 – 102</td></tr>
+                    <tr><td style="padding:10px;">GG</td><td>97 – 101</td><td>77 – 81</td><td>103 – 107</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container footer-grid">
@@ -231,45 +348,43 @@
     </footer>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { supabase } from "./supabaseClient.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_zI5Cn9gRwds239jA0mEf2qeprJHLFtc",
-            authDomain: "campbell-loja-2024.firebaseapp.com",
-            projectId: "campbell-loja-2024",
-            storageBucket: "campbell-loja-2024.firebasestorage.app",
-            messagingSenderId: "135628801506",
-            appId: "1:135628801506:web:3f0f759f3811491d5225bb"
-        };
+        // 100% Supabase agora — Firebase foi removido do projeto por completo
+        // (produtos, pedidos e auth já eram Supabase; "users"/perfil do cliente
+        // ainda não tem backend até essa parte migrar). Ver CLAUDE.md.
+        window.supabase = supabase; window.userLogado = null;
 
-        const app = initializeApp(firebaseConfig);
-        window.db = getFirestore(app); window.auth = getAuth(app); window.provider = new GoogleAuthProvider();
-        window.addDoc = addDoc; window.setDoc = setDoc; window.doc = doc; window.getDoc = getDoc; window.getDocs = getDocs; window.query = query; window.where = where; window.collection = collection; window.signInWithPopup = signInWithPopup; window.signOut = signOut; window.userLogado = null;
-
-        onAuthStateChanged(window.auth, async (user) => {
+        async function handleAuthChange(session) {
+            const user = session?.user || null;
             window.userLogado = user;
             const btn = document.getElementById('login-btn');
             const adminArea = document.getElementById('admin-area'); // Pega a div secreta do admin
 
             if (user) {
-                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${user.displayName.split(' ')[0]}`;
-                btn.onclick = window.toggleUserProfile;
-
                 // MÁGICA: SÓ MOSTRA O MENU DE ADMINISTRAÇÃO SE FOR O SEU E-MAIL
-                if (user.email === 'othaviocampbell2015@gmail.com') {
+                if ((user.email || '').toLowerCase() === 'othaviocampbell2015@gmail.com') {
                     adminArea.style.display = 'block';
                 } else {
                     adminArea.style.display = 'none';
                 }
 
+                // Nome do Google é só a sugestão inicial — se o usuário já salvou
+                // um nome próprio no perfil (perfis.nome), esse tem prioridade em
+                // qualquer lugar que o nome apareça (header e campo do carrinho).
+                const nomeGoogle = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'Cliente';
+                let nomeExibido = nomeGoogle;
+
                 try {
-                    const docSnap = await getDoc(doc(window.db, "users", user.uid));
-                    if(docSnap.exists()) {
-                        window.userProfile = docSnap.data();
-                        if(document.getElementById('client-name')) document.getElementById('client-name').value = user.displayName;
-                        
+                    const { data, error } = await supabase.from('perfis').select('*').eq('user_id', user.id).maybeSingle();
+                    if (!error && data) {
+                        window.userProfile = {
+                            cep: data.cep, street: data.rua, number: data.numero, comp: data.complemento,
+                            neighborhood: data.bairro, city: data.cidade, uf: data.uf, phone: data.telefone,
+                            photoURL: data.foto_url, name: data.nome, email: data.email
+                        };
+                        if (data.nome) nomeExibido = data.nome;
+
                         // Auto-preenche todos os dados no Carrinho
                         if(document.getElementById('client-cep')) {
                             document.getElementById('client-cep').value = window.userProfile.cep || "";
@@ -282,12 +397,22 @@
                         }
                     }
                 } catch(e) {}
+
+                const primeiroNome = nomeExibido.split(' ')[0];
+                btn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${primeiroNome}`;
+                btn.onclick = window.toggleUserProfile;
+
+                if(document.getElementById('client-name')) document.getElementById('client-name').value = nomeExibido;
             } else {
-                btn.innerHTML = `<i class="fa-brands fa-google"></i> Entrar`;
-                btn.onclick = window.fazerLogin;
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Entrar`;
+                btn.onclick = window.abrirModalLogin;
                 adminArea.style.display = 'none'; // Esconde caso saia da conta
             }
-        });
+        }
+
+        // onAuthStateChange dispara imediatamente com a sessão atual (igual ao
+        // onAuthStateChanged do Firebase), depois a cada login/logout/refresh de token.
+        supabase.auth.onAuthStateChange((_event, session) => { handleAuthChange(session); });
 
         const s = document.createElement('script'); s.src = "script.js"; document.body.appendChild(s);
     </script>

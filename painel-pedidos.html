@@ -4,180 +4,834 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Kanban</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="favicon/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+    <script type="importmap">
+    { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/+esm" } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.7/Sortable.min.js"></script>
     <style>
-        body { background: #121212; color: white; font-family: 'Montserrat', sans-serif; padding: 20px; margin: 0; }
-        h1 { color: #FF005C; text-align: center; margin-bottom: 20px; }
-        
-        .kanban-board { 
-            display: flex; gap: 20px; overflow-x: auto; 
-            min-height: 80vh; /* Altura mínima, cresce se precisar */
-            height: auto;
-            justify-content: center; 
-            align-items: flex-start; /* Alinha no topo */
-        }
-        @media (max-width: 1000px) { .kanban-board { justify-content: flex-start; } }
+        :root {
+            /* Tokens do redesign (estilo Lumina) — só nesta página, de propósito.
+               O resto do site usa a paleta de marca (--primary magenta etc.) +
+               Montserrat/Inter; este painel usa só Inter. */
+            --bg-primary: #09090b;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1c1d26;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #71717a;
+            --border-primary: #27272a;
+            --border-secondary: #2d3142;
+            --border-hover: #3f3f46;
+            --bg-overlay: rgba(255, 255, 255, 0.05);
 
-        .column { 
-            background: #1e1e1e; min-width: 320px; width: 320px; 
-            padding: 15px; border-radius: 10px; border-top: 4px solid #333; 
-            display: flex; flex-direction: column; gap: 10px; 
-            height: fit-content; /* Cresce com os cards */
-            min-height: 200px;
+            /* Cores de marca preservadas só onde fazem sentido semântico
+               (alerta de pedido novo, WhatsApp, login) */
+            --primary: #FF005C;
+            --whatsapp: #25D366;
+            --accent: #CBFF3D;
+
+            --font-body: 'Inter', sans-serif;
+            --space-xs: 8px; --space-sm: 16px; --space-md: 24px; --space-lg: 32px; --space-xl: 48px;
+            --radius-sm: 6px; --radius-md: 12px; --radius-lg: 16px; --radius-full: 999px;
         }
-        .col-novo { border-color: #3498db; }
-        .col-pago { border-color: #f1c40f; }
-        .col-enviado { border-color: #2ecc71; }
-        
-        /* CARD COM FOTO */
-        .card { 
-            background: #2a2a2a; padding: 12px; border-radius: 8px; border: 1px solid #333; 
-            cursor: pointer; transition: 0.2s; position: relative;
+        * { box-sizing: border-box; }
+        html, body { scrollbar-width: none; -ms-overflow-style: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+        body {
+            background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body);
+            margin: 0; padding: var(--space-md); overflow-x: hidden;
         }
-        .card:hover { border-color: #FF005C; transform: translateY(-3px); }
-        
-        .card-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 0.9rem; }
-        .card-body { display: flex; gap: 10px; align-items: center; }
-        .card-thumb { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; background: #000; }
-        .card-info { flex: 1; }
-        .card-info p { margin: 2px 0; font-size: 0.8rem; color: #ccc; }
-        .card-total { color: #2ecc71; font-weight: bold; font-size: 0.9rem; display: block; margin-top: 5px; }
+        h1, h2, h3, h4 { font-family: var(--font-body); margin: 0; }
+
+        header.page-header { text-align: center; margin-bottom: var(--space-md); position: relative; }
+        header.page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+        header.page-header h1 i { color: var(--primary); margin-right: 8px; }
+
+        /* ===== TOOLBAR ===== */
+        .toolbar { display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap; margin-bottom: var(--space-lg); }
+        .toolbar input, .toolbar select {
+            padding: 11px var(--space-sm); background: var(--bg-tertiary); border: 1px solid var(--border-primary);
+            color: var(--text-primary); border-radius: var(--radius-sm); outline: none; font-family: var(--font-body); font-size: 0.9rem;
+        }
+        .toolbar input::placeholder { color: var(--text-muted); }
+        .toolbar input:focus, .toolbar select:focus { border-color: var(--border-hover); }
+        .toolbar input { min-width: 280px; }
+
+        /* ===== BOARD ===== */
+        .kanban-board {
+            display: flex; gap: var(--space-md); overflow-x: auto; overflow-y: hidden;
+            align-items: flex-start; padding-bottom: var(--space-xs);
+            scrollbar-width: none; -ms-overflow-style: none;
+            /* "safe center": centraliza quando as colunas cabem na tela; se não
+               couberem (overflow), volta pro alinhamento normal em vez de cortar
+               a primeira coluna — é exatamente o problema que "justify-content:
+               center" sozinho causaria aqui. */
+            justify-content: safe center;
+            width: 100%;
+        }
+        .kanban-board::-webkit-scrollbar { display: none; }
+
+        .column {
+            background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: var(--radius-lg);
+            min-width: 320px; width: 320px; flex-shrink: 0;
+            display: flex; flex-direction: column;
+            max-height: calc(100vh - 190px);
+            overflow: hidden;
+        }
+        .column-header {
+            display: flex; align-items: center; gap: 10px; padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border-primary); flex-shrink: 0;
+        }
+        .column-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .dot-novo { background: #3b82f6; }
+        .dot-confirmado { background: #a855f7; }
+        .dot-preparando { background: #f97316; }
+        .dot-pronto { background: var(--accent); }
+        .dot-entregue { background: var(--whatsapp); }
+        .dot-cancelado { background: #ef4444; }
+        .column-title {
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text-secondary); flex: 1;
+        }
+        .column-count {
+            font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: var(--bg-overlay);
+            padding: 2px 9px; border-radius: var(--radius-full); min-width: 22px; text-align: center;
+        }
+
+        .column-cards {
+            flex: 1; overflow-y: auto; padding: var(--space-sm); display: flex; flex-direction: column; gap: var(--space-sm);
+            scrollbar-width: none; -ms-overflow-style: none; min-height: 80px;
+        }
+        .column-cards::-webkit-scrollbar { display: none; }
+
+        .empty-placeholder {
+            border: 1.5px dashed var(--border-secondary); border-radius: var(--radius-md);
+            color: var(--text-muted); text-align: center; padding: var(--space-lg) var(--space-sm);
+            font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .empty-placeholder i { font-size: 1.3rem; opacity: 0.6; }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md);
+            padding: var(--space-sm); cursor: pointer; transition: border-color 0.15s, transform 0.15s; position: relative;
+        }
+        .card:hover { border-color: var(--border-hover); }
+        .card-piscando { animation: piscar 1s ease-in-out infinite; }
+        @keyframes piscar {
+            0%, 100% { border-color: var(--border-primary); box-shadow: none; }
+            50% { border-color: var(--primary); box-shadow: 0 0 16px rgba(255,0,92,0.35); }
+        }
+        .sortable-ghost { opacity: 0.35; }
+        .sortable-chosen { border-color: var(--border-hover) !important; }
+
+        .card-drag-handle {
+            position: absolute; top: 10px; right: 10px; color: var(--text-muted); cursor: grab;
+            font-size: 0.85rem; padding: 4px; line-height: 1;
+        }
+        .card-drag-handle:active { cursor: grabbing; }
+
+        .card-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-right: 22px; margin-bottom: 10px; }
+        .tag {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 600;
+            padding: 3px 9px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.02em;
+        }
+        .tag-client { background: var(--bg-overlay); color: var(--text-secondary); }
+        .tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .tag-retirada { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .tag-retirada .tag-dot { background: #f59e0b; }
+        .tag-entrega { background: rgba(56,189,248,0.12); color: #38bdf8; }
+        .tag-entrega .tag-dot { background: #38bdf8; }
+
+        .card-title { font-size: 0.92rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .card-phone { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .card-desc { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: var(--space-sm); }
+
+        .card-divider { border-top: 1px solid var(--border-primary); margin-bottom: var(--space-sm); }
+
+        .card-footer { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .card-thumb { width: 34px; height: 34px; border-radius: var(--radius-sm); object-fit: cover; background: #000; flex-shrink: 0; }
+        .card-total { color: var(--accent); font-weight: 700; font-size: 0.85rem; }
 
         /* Ações Rápidas */
-        .quick-actions { display: flex; gap: 5px; margin-top: 10px; }
-        .btn-act { flex: 1; padding: 6px; border: none; border-radius: 4px; cursor: pointer; color: white; font-size: 0.7rem; font-weight: bold; }
-        .bg-pay { background: #f1c40f; color: black; }
-        .bg-ship { background: #2ecc71; }
-        .bg-del { background: #ff4444; max-width: 30px; }
+        .quick-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-act {
+            flex: 1; min-height: 34px; min-width: 44px; padding: 6px; border: none; border-radius: var(--radius-sm);
+            cursor: pointer; color: white; font-family: var(--font-body); font-size: 0.68rem; font-weight: 700;
+        }
+        .bg-confirm { background: #a855f7; }
+        .bg-prepare { background: #f97316; }
+        .bg-ready { background: var(--accent); color: #09090b; }
+        .bg-deliver { background: var(--whatsapp); }
+        .bg-cancel { background: #ef4444; }
+        .bg-whats { background: var(--whatsapp); flex: 0 0 38px; position: relative; }
+        /* Bolinha discreta no botão de WhatsApp do card quando o telefone foi
+           editado depois da criação do pedido — "perto do número" porque o
+           número em si não aparece no card compacto, só no modal de detalhes. */
+        .bg-whats.tel-atualizado::after {
+            content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px;
+            background: #eab308; border-radius: 50%; border: 2px solid var(--bg-secondary);
+        }
+        .badge-tel-atualizado {
+            display: inline-flex; align-items: center; gap: 4px; background: rgba(234,179,8,0.15);
+            color: #eab308; border: 1px solid rgba(234,179,8,0.4); font-size: 0.65rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.02em;
+        }
+        .bg-del { background: var(--bg-overlay); color: #ef4444; flex: 0 0 38px; }
 
-        /* MODAL DETALHES DO PEDIDO */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; }
+        /* ===== MODAL DETALHES ===== */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 5000; display: none; align-items: center; justify-content: center; padding: var(--space-md); }
         .overlay.active { display: flex; }
-        .modal-box { background: #1a1a1a; padding: 30px; width: 90%; max-width: 500px; border-radius: 10px; border: 1px solid #333; position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
-        
-        .modal-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 10px 0; }
-        .modal-products { margin-top: 20px; background: #111; padding: 10px; border-radius: 8px; }
-        .modal-prod-item { display: flex; gap: 10px; margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 10px; }
+        .modal-box {
+            background: var(--bg-secondary); padding: var(--space-lg); width: 100%; max-width: 480px; max-height: 90vh;
+            overflow-y: auto; border-radius: var(--radius-lg); border: 1px solid var(--border-primary); position: relative;
+            scrollbar-width: none; -ms-overflow-style: none;
+        }
+        .modal-box::-webkit-scrollbar { display: none; }
+        .close-btn { position: absolute; top: var(--space-sm); right: var(--space-md); background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .modal-box h2 { font-size: 1.15rem; font-weight: 700; text-align: center; }
+
+        .modal-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-primary); padding: var(--space-sm) 0; font-size: 0.9rem; }
+        .modal-row span:first-child { color: var(--text-secondary); }
+        .modal-products { margin-top: var(--space-md); background: var(--bg-tertiary); padding: var(--space-sm); border-radius: var(--radius-md); }
+        .modal-prod-item { display: flex; gap: var(--space-sm); margin-bottom: var(--space-sm); border-bottom: 1px dashed var(--border-primary); padding-bottom: var(--space-sm); }
         .modal-prod-item:last-child { border: none; margin: 0; padding: 0; }
+
+        .modal-historico { margin-top: var(--space-md); background: var(--bg-tertiary); padding: var(--space-sm); border-radius: var(--radius-md); }
+        .modal-historico h4 { color: var(--text-muted); font-size: 0.75rem; margin-bottom: var(--space-sm); text-transform: uppercase; letter-spacing: 0.05em; }
+        .historico-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px dashed var(--border-primary); }
+        .historico-item:last-child { border: none; padding-bottom: 0; }
+        .historico-item span:last-child { color: var(--text-muted); }
+
+        /* ===== TELA DE LOGIN ===== */
+        .login-screen { position: fixed; inset: 0; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: var(--space-md); }
+        .login-box { background: var(--bg-secondary); padding: var(--space-xl); border-radius: var(--radius-lg); width: 100%; max-width: 360px; border: 1px solid var(--border-primary); }
+        .login-box h2 { color: var(--text-primary); text-align: center; margin-bottom: var(--space-md); font-size: 1.1rem; font-weight: 700; }
+        .login-box label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 0.85rem; }
+        .login-box input {
+            width: 100%; box-sizing: border-box; padding: 11px var(--space-sm); background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary); color: var(--text-primary); border-radius: var(--radius-sm);
+            margin-bottom: var(--space-sm); outline: none;
+        }
+        .login-box input:focus { border-color: var(--border-hover); }
+        .login-btn {
+            width: 100%; box-sizing: border-box; padding: 12px; background: var(--primary); color: white; border: none;
+            border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em;
+        }
+        .login-btn:hover { filter: brightness(1.15); }
+        #login-error { color: #ef4444; font-size: 0.85rem; margin-top: var(--space-sm); text-align: center; min-height: 1em; }
+        .logout-btn {
+            position: fixed; top: var(--space-sm); right: var(--space-sm); background: var(--bg-tertiary); color: var(--text-secondary);
+            border: 1px solid var(--border-primary); padding: 10px 14px; min-height: 40px; box-sizing: border-box;
+            border-radius: var(--radius-sm); cursor: pointer; z-index: 10; font-family: var(--font-body); font-size: 0.85rem;
+        }
+        .logout-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+        /* RESPONSIVIDADE — Mobile: até 599px | Tablet: 600–1023px | Desktop: 1024px+ */
+        @media (max-width: 1023px) {
+            .column { min-width: 280px; width: 280px; }
+        }
+        @media (max-width: 599px) {
+            body { padding: var(--space-sm); padding-top: 60px; }
+            header.page-header h1 { font-size: 1.1rem; }
+            .toolbar input { min-width: 0; width: 100%; }
+            .kanban-board { scroll-snap-type: x mandatory; gap: var(--space-sm); }
+            .column { min-width: 88vw; width: 88vw; scroll-snap-align: start; max-height: calc(100vh - 230px); }
+            .modal-box { padding: var(--space-md); }
+        }
     </style>
 </head>
 <body>
 
-    <h1>📦 Kanban de Pedidos</h1>
-    <div class="kanban-board">
-        <div class="column col-novo" id="col-novo"><h3 style="text-align:center">🆕 Novos</h3></div>
-        <div class="column col-pago" id="col-pago"><h3 style="text-align:center">💰 Pagos</h3></div>
-        <div class="column col-enviado" id="col-enviado"><h3 style="text-align:center">🚚 Enviados</h3></div>
+    <div id="login-screen" class="login-screen">
+        <div class="login-box">
+            <h2><i class="fa-solid fa-lock"></i> Acesso Restrito</h2>
+            <label for="login-email">E-mail</label>
+            <input type="email" id="login-email" autocomplete="username">
+            <label for="login-password">Senha</label>
+            <input type="password" id="login-password" autocomplete="current-password">
+            <button class="login-btn" id="login-submit-btn" onclick="fazerLogin()">Entrar</button>
+            <p style="text-align:center; font-size:0.85rem; margin-top:12px;">
+                <a href="#" id="login-toggle-link" onclick="alternarModoLogin(event)" style="color:var(--whatsapp);">Não tem conta? Criar conta</a>
+            </p>
+            <p id="login-error"></p>
+        </div>
     </div>
 
-    <div id="order-modal" class="overlay">
-        <div class="modal-box">
-            <button class="close-btn" onclick="closeOrderModal()">&times;</button>
-            <h2 id="m-client">Cliente</h2>
-            <p id="m-id" style="color:#888; font-size:0.9rem;">#ID</p>
-            
-            <div class="modal-row"><span>Status:</span> <strong id="m-status" style="color:var(--primary)">Novo</strong></div>
-            <div class="modal-row"><span>Pagamento:</span> <strong id="m-payment">PIX</strong></div>
-            <div class="modal-row"><span>Total:</span> <strong id="m-total" style="color:#2ecc71">R$ 0,00</strong></div>
-            
-            <p style="margin-top:15px; color:#aaa; font-size:0.9rem;">📍 <span id="m-address">Endereço...</span></p>
+    <div id="app-content" style="display:none;">
+        <button class="logout-btn" onclick="fazerLogout()">Sair</button>
+        <header class="page-header">
+            <h1><i class="fa-solid fa-table-columns"></i>Kanban de Pedidos</h1>
+        </header>
 
-            <div class="modal-products" id="m-products-list">
+        <div class="toolbar">
+            <input type="text" id="busca-cliente" placeholder="Buscar por nome ou telefone...">
+            <select id="filtro-periodo">
+                <option value="todos">Todos os períodos</option>
+                <option value="hoje">Hoje</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mês</option>
+            </select>
+        </div>
+
+        <div class="kanban-board">
+            <div class="column" data-status="Novo">
+                <div class="column-header"><span class="column-dot dot-novo"></span><span class="column-title"><i class="fa-solid fa-inbox"></i> Novo</span><span class="column-count" id="count-novo">0</span></div>
+                <div class="column-cards" id="cards-novo" data-status="Novo"></div>
+            </div>
+            <div class="column" data-status="Confirmado">
+                <div class="column-header"><span class="column-dot dot-confirmado"></span><span class="column-title"><i class="fa-solid fa-circle-check"></i> Confirmado</span><span class="column-count" id="count-confirmado">0</span></div>
+                <div class="column-cards" id="cards-confirmado" data-status="Confirmado"></div>
+            </div>
+            <div class="column" data-status="Preparando">
+                <div class="column-header"><span class="column-dot dot-preparando"></span><span class="column-title"><i class="fa-solid fa-screwdriver-wrench"></i> Preparando</span><span class="column-count" id="count-preparando">0</span></div>
+                <div class="column-cards" id="cards-preparando" data-status="Preparando"></div>
+            </div>
+            <div class="column" data-status="Pronto">
+                <div class="column-header"><span class="column-dot dot-pronto"></span><span class="column-title"><i class="fa-solid fa-box"></i> Pronto</span><span class="column-count" id="count-pronto">0</span></div>
+                <div class="column-cards" id="cards-pronto" data-status="Pronto"></div>
+            </div>
+            <div class="column" data-status="Entregue">
+                <div class="column-header"><span class="column-dot dot-entregue"></span><span class="column-title"><i class="fa-solid fa-truck"></i> Entregue</span><span class="column-count" id="count-entregue">0</span></div>
+                <div class="column-cards" id="cards-entregue" data-status="Entregue"></div>
+            </div>
+            <div class="column" data-status="Cancelado">
+                <div class="column-header"><span class="column-dot dot-cancelado"></span><span class="column-title"><i class="fa-solid fa-circle-xmark"></i> Cancelado</span><span class="column-count" id="count-cancelado">0</span></div>
+                <div class="column-cards" id="cards-cancelado" data-status="Cancelado"></div>
+            </div>
+        </div>
+
+        <div id="order-modal" class="overlay">
+            <div class="modal-box">
+                <button class="close-btn" onclick="closeOrderModal()">&times;</button>
+                <h2 id="m-client">Cliente</h2>
+                <p id="m-id" style="color:var(--text-muted); font-size:0.85rem; text-align:center; margin-top:4px;">#ID</p>
+
+                <div class="modal-row"><span>Status:</span> <strong id="m-status" style="color:var(--primary)">Novo</strong></div>
+                <div class="modal-row"><span>Telefone:</span> <span><strong id="m-phone">-</strong> <span id="m-phone-badge" class="badge-tel-atualizado" style="display:none;">Telefone atualizado</span></span></div>
+                <div class="modal-row"><span>Tipo de Entrega:</span> <strong id="m-tipo-entrega">Entrega</strong></div>
+                <div class="modal-row"><span>Pagamento:</span> <strong id="m-payment">PIX</strong></div>
+                <div class="modal-row"><span>Total:</span> <strong id="m-total" style="color:var(--accent)">R$ 0,00</strong></div>
+
+                <p style="margin-top:15px; color:var(--text-secondary); font-size:0.9rem;"><i class="fa-solid fa-location-dot"></i> <span id="m-address">Endereço...</span></p>
+
+                <div class="modal-products" id="m-products-list">
+                    </div>
+
+                <div class="modal-historico">
+                    <h4><i class="fa-solid fa-clock-rotate-left"></i> Histórico</h4>
+                    <div id="m-historico-list"></div>
                 </div>
+            </div>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { supabase } from "./supabaseClient.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_zI5Cn9gRwds239jA0mEf2qeprJHLFtc",
-            authDomain: "campbell-loja-2024.firebaseapp.com",
-            projectId: "campbell-loja-2024",
-            storageBucket: "campbell-loja-2024.firebasestorage.app",
-            messagingSenderId: "135628801506",
-            appId: "1:135628801506:web:3f0f759f3811491d5225bb"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // painel-pedidos.html não usa mais Firebase/Firestore — pedidos,
+        // itens_pedido e historico_status_pedido são 100% Supabase (Postgres +
+        // Realtime). Ver CLAUDE.md, seção "Migração de pedidos".
+        const ADMIN_EMAIL = 'othaviocampbell2015@gmail.com';
 
         // Armazena pedidos locais para abrir modal
         let ordersData = {};
+        let painelIniciado = false;
 
-        onSnapshot(collection(db, "pedidos"), (snapshot) => {
-            document.getElementById('col-novo').innerHTML = '<h3 style="text-align:center">🆕 Novos</h3>';
-            document.getElementById('col-pago').innerHTML = '<h3 style="text-align:center">💰 Pagos</h3>';
-            document.getElementById('col-enviado').innerHTML = '<h3 style="text-align:center">🚚 Enviados</h3>';
+        // Alterna entre "Entrar" e "Criar conta" — necessário porque o admin
+        // ainda não tem conta no Supabase Auth (é uma identidade nova, separada
+        // do Firebase Auth); usar uma única vez para criar a conta e depois
+        // sempre "Entrar".
+        let modoCriarConta = false;
 
-            snapshot.forEach((docSnap) => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                ordersData[id] = p; // Salva para usar no modal
+        window.alternarModoLogin = function(e) {
+            if (e) e.preventDefault();
+            modoCriarConta = !modoCriarConta;
+            document.getElementById('login-submit-btn').innerText = modoCriarConta ? 'Criar conta' : 'Entrar';
+            document.getElementById('login-toggle-link').innerText = modoCriarConta ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta';
+            document.getElementById('login-error').textContent = '';
+        };
 
-                // Pega a primeira foto para o card
-                const thumb = p.itens[0]?.images[0] || 'https://via.placeholder.com/50';
-                const qtdTotal = p.itens.reduce((a,b)=>a+b.quantity,0);
+        window.fazerLogin = async function() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            errEl.textContent = '';
+            try {
+                if (modoCriarConta) {
+                    const { data, error } = await supabase.auth.signUp({ email, password: senha });
+                    if (error) throw error;
+                    if (!data.session) {
+                        errEl.textContent = 'Conta criada! Verifique seu e-mail para confirmar antes de entrar.';
+                        return;
+                    }
+                } else {
+                    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+                    if (error) throw error;
+                }
+            } catch (e) {
+                errEl.textContent = 'E-mail ou senha inválidos.';
+            }
+        };
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                // Ao clicar no corpo do card, abre detalhes
-                card.onclick = (e) => { if(!e.target.classList.contains('btn-act')) openOrderDetails(id); };
+        window.fazerLogout = async function() {
+            await supabase.auth.signOut();
+        };
 
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span>${p.cliente.nome.split(' ')[0]}</span>
-                        <small>#${id.slice(0,4)}</small>
-                    </div>
-                    <div class="card-body">
-                        <img src="${thumb}" class="card-thumb">
-                        <div class="card-info">
-                            <p>${qtdTotal} itens</p>
-                            <span class="card-total">R$ ${p.total.toFixed(2)}</span>
+        // onAuthStateChange dispara imediatamente com a sessão atual (igual ao
+        // onAuthStateChanged do Firebase), depois a cada login/logout/refresh de token.
+        supabase.auth.onAuthStateChange((_event, session) => {
+            const user = session?.user || null;
+            if (user && (user.email || '').toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                if (!painelIniciado) { painelIniciado = true; iniciarPainel(); }
+            } else {
+                if (user) supabase.auth.signOut(); // logado mas não é o admin
+                document.getElementById('app-content').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-password').value = '';
+            }
+        });
+
+        function iniciarPainel() {
+        const COLUNAS = {
+            'Novo':       { key: 'novo' },
+            'Confirmado': { key: 'confirmado' },
+            'Preparando': { key: 'preparando' },
+            'Pronto':     { key: 'pronto' },
+            'Entregue':   { key: 'entregue' },
+            'Cancelado':  { key: 'cancelado' }
+        };
+
+        // Botões de avanço de status disponíveis em cada coluna — é também a
+        // regra de quais colunas o drag-and-drop aceita como destino (ver
+        // configuração do Sortable mais abaixo: nunca deixa "pular" etapa,
+        // pra não escapar da baixa de estoque que só acontece em "Confirmado").
+        const ACOES = {
+            'Novo': [{ label: 'CONFIRMAR', status: 'Confirmado', cls: 'bg-confirm' }, { label: 'CANCELAR', status: 'Cancelado', cls: 'bg-cancel' }],
+            'Confirmado': [{ label: 'PREPARAR', status: 'Preparando', cls: 'bg-prepare' }, { label: 'CANCELAR', status: 'Cancelado', cls: 'bg-cancel' }],
+            'Preparando': [{ label: 'PRONTO', status: 'Pronto', cls: 'bg-ready' }],
+            'Pronto': [{ label: 'ENTREGUE', status: 'Entregue', cls: 'bg-deliver' }],
+            'Entregue': [],
+            'Cancelado': []
+        };
+
+        function badgeTipoEntrega(tipoEntrega) {
+            if (tipoEntrega === 'Retirada') return '<span class="tag tag-retirada"><span class="tag-dot"></span>Retirada</span>';
+            return '<span class="tag tag-entrega"><span class="tag-dot"></span>Entrega</span>';
+        }
+
+        // ALERTA DE PEDIDO NOVO (som + destaque visual)
+        let audioCtx = null;
+        function tocarSom() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.6);
+            } catch (e) { /* autoplay bloqueado ou não suportado */ }
+        }
+
+        const novosPedidos = new Set();
+        let primeiraCarga = true;
+
+        function marcarComoNovo(id) {
+            novosPedidos.add(id);
+            tocarSom();
+            setTimeout(() => {
+                novosPedidos.delete(id);
+                const el = document.querySelector(`.card[data-id="${id}"]`);
+                if (el) el.classList.remove('card-piscando');
+            }, 8000);
+        }
+
+        // BUSCA E FILTRO POR PERÍODO
+        function passaBusca(p) {
+            const query = document.getElementById('busca-cliente').value.trim().toLowerCase();
+            if (!query) return true;
+            const queryDigits = query.replace(/\D/g, '');
+            const nomeMatch = (p.cliente_nome || '').toLowerCase().includes(query);
+            const telMatch = queryDigits.length > 0 && (p.cliente_telefone || '').replace(/\D/g, '').includes(queryDigits);
+            return nomeMatch || telMatch;
+        }
+
+        function passaPeriodo(p) {
+            const periodo = document.getElementById('filtro-periodo').value;
+            if (periodo === 'todos') return true;
+
+            const dataPedido = new Date(p.criado_em);
+            if (isNaN(dataPedido)) return false;
+            const agora = new Date();
+
+            if (periodo === 'hoje') {
+                return dataPedido.toDateString() === agora.toDateString();
+            }
+            if (periodo === 'semana') {
+                const inicioSemana = new Date(agora);
+                inicioSemana.setDate(agora.getDate() - agora.getDay());
+                inicioSemana.setHours(0, 0, 0, 0);
+                return dataPedido >= inicioSemana;
+            }
+            if (periodo === 'mes') {
+                return dataPedido.getFullYear() === agora.getFullYear() && dataPedido.getMonth() === agora.getMonth();
+            }
+            return true;
+        }
+
+        // Dados de pedidos vêm do Supabase, e criar_pedido() é chamável por
+        // qualquer visitante sem login (checkout de convidado) — ou seja,
+        // qualquer campo abaixo pode conter conteúdo malicioso forjado por alguém sem
+        // login. Por isso todo texto/atributo é setado via DOM (textContent/.src),
+        // nunca concatenado em innerHTML.
+        function renderizarPedidos() {
+            const porColuna = {};
+            Object.keys(COLUNAS).forEach(status => porColuna[status] = []);
+
+            Object.values(ordersData).forEach(p => {
+                if (!passaBusca(p) || !passaPeriodo(p)) return;
+                const status = COLUNAS[p.status] ? p.status : 'Novo';
+                porColuna[status].push(p);
+            });
+
+            Object.entries(COLUNAS).forEach(([status, info]) => {
+                const lista = porColuna[status].sort((a, b) => (Number(b.ordem) || 0) - (Number(a.ordem) || 0));
+                const cardsEl = document.getElementById('cards-' + info.key);
+                document.getElementById('count-' + info.key).textContent = lista.length;
+
+                cardsEl.innerHTML = '';
+
+                if (lista.length === 0) {
+                    const vazio = document.createElement('div');
+                    vazio.className = 'empty-placeholder';
+                    vazio.innerHTML = '<i class="fa-solid fa-inbox"></i><span>Solte itens aqui</span>';
+                    cardsEl.appendChild(vazio);
+                    return;
+                }
+
+                lista.forEach(p => {
+                    const id = p.id;
+                    const nome = String(p.cliente_nome || '');
+                    const itens = Array.isArray(p.itens_pedido) ? p.itens_pedido : [];
+                    const thumb = itens[0]?.produto_imagem || 'https://via.placeholder.com/50';
+                    const qtdTotal = itens.reduce((a, b) => a + (Number(b.quantidade) || 0), 0);
+                    const totalNum = Number(p.total) || 0;
+
+                    const card = document.createElement('div');
+                    card.className = 'card' + (novosPedidos.has(id) ? ' card-piscando' : '');
+                    card.dataset.id = id;
+                    card.dataset.status = status;
+                    card.dataset.ordem = p.ordem;
+                    card.onclick = () => openOrderDetails(id);
+
+                    // Estrutura estática (sem dados do Supabase) via innerHTML;
+                    // o conteúdo dinâmico é preenchido logo abaixo via textContent/.src.
+                    card.innerHTML = `
+                        <div class="card-drag-handle" title="Arrastar"><i class="fa-solid fa-grip-vertical"></i></div>
+                        <div class="card-tags">
+                            <span class="tag tag-client c-nome"></span>
+                            ${badgeTipoEntrega(p.tipo_entrega)}
                         </div>
-                    </div>
-                    <div class="quick-actions">
-                        ${p.status === 'Novo' ? `<button class="btn-act bg-pay" onclick="mover('${id}','Pago')">PAGO</button>` : ''}
-                        ${p.status === 'Pago' ? `<button class="btn-act bg-ship" onclick="mover('${id}','Enviado')">ENVIAR</button>` : ''}
-                        <button class="btn-act bg-del" onclick="apagar('${id}')">X</button>
-                    </div>
-                `;
+                        <h4 class="card-title">Pedido <span class="c-idcurto"></span></h4>
+                        <p class="card-phone"><i class="fa-brands fa-whatsapp"></i> <span class="c-telefone"></span></p>
+                        <p class="card-desc c-qtd"></p>
+                        <div class="card-divider"></div>
+                        <div class="card-footer">
+                            <img class="card-thumb">
+                            <span class="card-total c-total"></span>
+                        </div>
+                        <div class="quick-actions"></div>
+                    `;
 
-                if(p.status === 'Novo') document.getElementById('col-novo').appendChild(card);
-                else if(p.status === 'Pago') document.getElementById('col-pago').appendChild(card);
-                else if(p.status === 'Enviado') document.getElementById('col-enviado').appendChild(card);
+                    // Card mostra o nome completo do cliente (não só o
+                    // primeiro nome) e o telefone diretamente, pra não
+                    // precisar abrir o modal só pra ver com quem falar.
+                    card.querySelector('.c-nome').textContent = nome || 'Cliente';
+                    card.querySelector('.c-idcurto').textContent = '#' + id.slice(0, 4);
+                    card.querySelector('.c-telefone').textContent = p.cliente_telefone || 'Telefone não informado';
+                    if (p.telefone_atualizado) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge-tel-atualizado';
+                        badge.textContent = 'Atualizado';
+                        card.querySelector('.card-phone').appendChild(badge);
+                    }
+                    card.querySelector('.c-qtd').textContent = `${qtdTotal} ${qtdTotal === 1 ? 'item' : 'itens'}`;
+                    card.querySelector('.card-thumb').src = thumb;
+                    card.querySelector('.c-total').textContent = `R$ ${totalNum.toFixed(2).replace('.', ',')}`;
+
+                    const quickActions = card.querySelector('.quick-actions');
+
+                    (ACOES[p.status] || []).forEach(a => {
+                        const btn = document.createElement('button');
+                        btn.className = `btn-act ${a.cls}`;
+                        btn.textContent = a.label;
+                        btn.onclick = (e) => { e.stopPropagation(); mover(id, a.status); };
+                        quickActions.appendChild(btn);
+                    });
+
+                    const btnWhats = document.createElement('button');
+                    btnWhats.className = 'btn-act bg-whats' + (p.telefone_atualizado ? ' tel-atualizado' : '');
+                    btnWhats.title = p.telefone_atualizado ? 'Chamar no WhatsApp — telefone atualizado após o pedido' : 'Chamar no WhatsApp';
+                    btnWhats.innerHTML = '<i class="fa-brands fa-whatsapp"></i>'; // ícone estático, sem dados do Supabase
+                    btnWhats.onclick = (e) => { e.stopPropagation(); abrirWhatsapp(id); };
+                    quickActions.appendChild(btnWhats);
+
+                    const btnDel = document.createElement('button');
+                    btnDel.className = 'btn-act bg-del';
+                    btnDel.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                    btnDel.onclick = (e) => { e.stopPropagation(); apagar(id); };
+                    quickActions.appendChild(btnDel);
+
+                    cardsEl.appendChild(card);
+                });
+            });
+        }
+
+        document.getElementById('busca-cliente').addEventListener('input', renderizarPedidos);
+        document.getElementById('filtro-periodo').addEventListener('change', renderizarPedidos);
+
+        // ===== DRAG-AND-DROP (SortableJS) =====
+        // Um Sortable por coluna, todos no mesmo group ("kanban") pra permitir
+        // arrastar entre colunas. handle: '.card-drag-handle' separa "clicar
+        // no card abre os detalhes" de "arrastar pelo ícone move o card".
+        function calcularNovaOrdem(ordemAcima, ordemAbaixo) {
+            if (ordemAcima == null && ordemAbaixo == null) return Date.now();
+            if (ordemAcima == null) return ordemAbaixo + 1000;
+            if (ordemAbaixo == null) return ordemAcima - 1000;
+            return (ordemAcima + ordemAbaixo) / 2;
+        }
+
+        Object.keys(COLUNAS).forEach(status => {
+            const el = document.getElementById('cards-' + COLUNAS[status].key);
+            new Sortable(el, {
+                group: 'kanban',
+                handle: '.card-drag-handle',
+                animation: 150,
+                onMove: (evt) => {
+                    const origemStatus = evt.dragged.dataset.status;
+                    const destinoStatus = evt.to.dataset.status;
+                    if (origemStatus === destinoStatus) return true; // reordenar na mesma coluna sempre ok
+                    // só aceita destino que já era um botão de ação válido hoje —
+                    // impede "pular etapa" (ex: Novo -> Entregue) e escapar da
+                    // baixa de estoque, que só roda exatamente em "Confirmado".
+                    return (ACOES[origemStatus] || []).some(a => a.status === destinoStatus);
+                },
+                onEnd: async (evt) => {
+                    const id = evt.item.dataset.id;
+                    const destinoStatus = evt.to.dataset.status;
+                    const origemStatus = evt.item.dataset.status;
+
+                    if (destinoStatus !== origemStatus) {
+                        const ok = await mover(id, destinoStatus);
+                        if (!ok) renderizarPedidos(); // reverte visualmente se o RPC rejeitar (ex: estoque insuficiente)
+                        return;
+                    }
+
+                    // mesma coluna: só reordenou visualmente -> persiste "ordem"
+                    const irmaos = Array.from(evt.to.children).filter(el => el.dataset && el.dataset.id);
+                    const idx = irmaos.indexOf(evt.item);
+                    const ordemAcima = idx > 0 ? Number(irmaos[idx - 1].dataset.ordem) : null;
+                    const ordemAbaixo = idx < irmaos.length - 1 ? Number(irmaos[idx + 1].dataset.ordem) : null;
+                    const novaOrdem = calcularNovaOrdem(ordemAcima, ordemAbaixo);
+
+                    evt.item.dataset.ordem = novaOrdem;
+                    if (ordersData[id]) ordersData[id].ordem = novaOrdem;
+
+                    const { error } = await supabase.from('pedidos').update({ ordem: novaOrdem }).eq('id', id);
+                    if (error) console.error(error);
+                }
             });
         });
 
+        // Traz cada pedido já com seus itens e histórico embutidos (join via
+        // PostgREST), pra renderizarPedidos() sempre ter os dados completos —
+        // igual ao doc do Firestore de antes, que trazia tudo junto.
+        const SELECT_PEDIDO_COMPLETO = '*, itens_pedido(*), historico_status_pedido(*)';
+
+        async function carregarTodosPedidos() {
+            const { data, error } = await supabase.from('pedidos').select(SELECT_PEDIDO_COMPLETO).order('ordem', { ascending: false });
+            if (error) { console.error(error); return; }
+            ordersData = {};
+            data.forEach(p => { ordersData[p.id] = p; });
+            renderizarPedidos();
+        }
+
+        async function atualizarPedidoNoPainel(id) {
+            const { data, error } = await supabase.from('pedidos').select(SELECT_PEDIDO_COMPLETO).eq('id', id).single();
+            if (error) { console.error(error); return; }
+            ordersData[id] = data;
+            renderizarPedidos();
+        }
+
+        carregarTodosPedidos().then(() => {
+            primeiraCarga = false;
+
+            // Realtime substitui o onSnapshot do Firestore: escuta mudanças na
+            // tabela pedidos (a tabela precisa estar na publication
+            // supabase_realtime — ver instrução em separado) e, a cada evento,
+            // busca de novo o pedido completo (com itens/histórico) pra manter
+            // o card e o modal sempre consistentes.
+            supabase
+                .channel('pedidos-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
+                    if (payload.eventType === 'DELETE') {
+                        delete ordersData[payload.old.id];
+                        renderizarPedidos();
+                        return;
+                    }
+                    if (payload.eventType === 'INSERT') marcarComoNovo(payload.new.id);
+                    atualizarPedidoNoPainel(payload.new.id);
+                })
+                .subscribe();
+        });
+        }
+
         // FUNÇÕES GLOBAIS
-        window.mover = async (id, s) => { await updateDoc(doc(db, "pedidos", id), { status: s }); };
-        window.apagar = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "pedidos", id)); };
+        // mover_pedido_status() faz status + histórico + baixa/devolução de
+        // estoque (quando Confirmado/Cancelado) numa transação atômica só —
+        // nunca fazer update direto em pedidos.status pra não perder essa
+        // garantia (estoque nunca fica negativo, nunca decrementa 2x).
+        // Devolve true/false pra quem chamou (ex: o drag-and-drop) saber se
+        // precisa reverter a posição visual do card.
+        window.mover = async (id, s) => {
+            const { error } = await supabase.rpc('mover_pedido_status', { p_pedido_id: id, p_novo_status: s });
+            if (error) { console.error(error); alert('Erro ao mover pedido: ' + error.message); return false; }
+            return true;
+        };
+        window.apagar = async (id) => {
+            if (!confirm("Apagar?")) return;
+            const { error } = await supabase.from('pedidos').delete().eq('id', id);
+            if (error) { console.error(error); alert('Erro ao apagar: ' + error.message); }
+        };
+
+        function telefoneParaWhatsapp(telefone) {
+            const digits = (telefone || '').replace(/\D/g, '');
+            if (!digits) return null;
+            return digits.startsWith('55') ? digits : '55' + digits;
+        }
+
+        // Uma mensagem por etapa do pedido — "Pronto" ainda varia por tipo de
+        // entrega, já que "vem buscar" e "sai pra entrega" são coisas bem
+        // diferentes pro cliente.
+        function mensagemWhatsappPorStatus(p, id) {
+            const primeiroNome = (p.cliente_nome || '').split(' ')[0] || 'cliente';
+            const idCurto = id.slice(0, 4);
+            switch (p.status) {
+                case 'Novo':
+                    return `Oi, ${primeiroNome}! Recebemos seu pedido #${idCurto} feito pelo site. Posso confirmar os dados com você para seguir com a preparação?`;
+                case 'Confirmado':
+                    return `Oi, ${primeiroNome}! Seu pedido #${idCurto} foi confirmado e já está entrando na fila de preparação. Qualquer coisa, é só chamar por aqui!`;
+                case 'Preparando':
+                    return `Oi, ${primeiroNome}! Seu pedido #${idCurto} já está sendo preparado com todo cuidado. Assim que ficar pronto, te aviso por aqui!`;
+                case 'Pronto':
+                    return p.tipo_entrega === 'Retirada'
+                        ? `Oi, ${primeiroNome}! Seu pedido #${idCurto} está pronto e te esperando para retirada! Pode vir buscar quando quiser.`
+                        : `Oi, ${primeiroNome}! Seu pedido #${idCurto} está pronto e sai para entrega em breve!`;
+                case 'Entregue':
+                    return `Oi, ${primeiroNome}! Esperamos que esteja aproveitando seu pedido #${idCurto}! Qualquer dúvida ou necessidade de troca, é só chamar.`;
+                case 'Cancelado':
+                    return `Oi, ${primeiroNome}, seu pedido #${idCurto} foi cancelado. Se precisar de algo ou quiser fazer um novo pedido, é só chamar por aqui!`;
+                default:
+                    return `Oi, ${primeiroNome}! Sobre o seu pedido #${idCurto}...`;
+            }
+        }
+
+        window.abrirWhatsapp = (id) => {
+            const p = ordersData[id];
+            if (!p) return;
+
+            const numero = telefoneParaWhatsapp(p.cliente_telefone);
+            if (!numero) return alert('Telefone não informado para este cliente.');
+
+            const msg = mensagemWhatsappPorStatus(p, id);
+            window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
+        };
 
         // LÓGICA DO MODAL
+        // Mesmo cuidado do renderizarPedidos: nada de dados do Supabase vai para
+        // innerHTML aqui. innerText/textContent nunca interpreta HTML, então é seguro
+        // mesmo que o campo tenha sido forjado por alguém sem login (criar_pedido é
+        // chamável por qualquer visitante, é assim por design).
         window.openOrderDetails = (id) => {
             const p = ordersData[id];
             if(!p) return;
 
-            document.getElementById('m-client').innerText = p.cliente.nome;
+            document.getElementById('m-client').innerText = p.cliente_nome || '';
             document.getElementById('m-id').innerText = "#" + id;
             document.getElementById('m-status').innerText = p.status;
+            document.getElementById('m-phone').innerText = p.cliente_telefone || 'Não informado';
+            document.getElementById('m-phone-badge').style.display = p.telefone_atualizado ? 'inline-flex' : 'none';
+            // Texto fixo (só 2 opções possíveis), não dado bruto do Supabase — innerHTML aqui é seguro
+            document.getElementById('m-tipo-entrega').innerHTML = p.tipo_entrega === 'Retirada'
+                ? '<i class="fa-solid fa-store"></i> Retirada no local'
+                : '<i class="fa-solid fa-truck"></i> Entrega no endereço';
             document.getElementById('m-payment').innerText = p.pagamento;
-            document.getElementById('m-total').innerText = `R$ ${p.total.toFixed(2)}`;
-            document.getElementById('m-address').innerText = p.cliente.endereco;
+            document.getElementById('m-total').innerText = `R$ ${(Number(p.total) || 0).toFixed(2)}`;
+            document.getElementById('m-address').innerText = p.cliente_endereco || '';
 
-            // Renderiza produtos com foto no modal
-            document.getElementById('m-products-list').innerHTML = p.itens.map(i => `
-                <div class="modal-prod-item">
-                    <img src="${i.images[0]}" style="width:50px; height:50px; border-radius:4px; object-fit:cover;">
-                    <div>
-                        <div style="color:white; font-weight:bold;">${i.quantity}x ${i.name}</div>
-                        <div style="color:#888; font-size:0.8rem;">Tam: ${i.selectedSize}</div>
-                    </div>
-                </div>
-            `).join('');
+            // Renderiza produtos com foto no modal (via DOM, não innerHTML)
+            const listaProdutos = document.getElementById('m-products-list');
+            listaProdutos.innerHTML = '';
+            (Array.isArray(p.itens_pedido) ? p.itens_pedido : []).forEach(i => {
+                const item = document.createElement('div');
+                item.className = 'modal-prod-item';
+
+                const img = document.createElement('img');
+                img.src = i.produto_imagem || '';
+                img.style.cssText = 'width:50px; height:50px; border-radius:8px; object-fit:cover;';
+
+                const info = document.createElement('div');
+                const linhaNome = document.createElement('div');
+                linhaNome.style.cssText = 'color:var(--text-primary); font-weight:700;';
+                linhaNome.textContent = `${i.quantidade}x ${i.produto_nome}`;
+                const linhaTam = document.createElement('div');
+                linhaTam.style.cssText = 'color:var(--text-muted); font-size:0.8rem;';
+                linhaTam.textContent = `Tam: ${i.tamanho}`;
+                info.appendChild(linhaNome);
+                info.appendChild(linhaTam);
+
+                item.appendChild(img);
+                item.appendChild(info);
+                listaProdutos.appendChild(item);
+            });
+
+            // Renderiza histórico de status em ordem cronológica (via DOM, não innerHTML)
+            const historico = (p.historico_status_pedido || []).slice().sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em));
+            const listaHistorico = document.getElementById('m-historico-list');
+            listaHistorico.innerHTML = '';
+            if (!historico.length) {
+                const vazio = document.createElement('p');
+                vazio.style.cssText = 'color:var(--text-muted); font-size:0.85rem;';
+                vazio.textContent = 'Nenhuma movimentação registrada ainda.';
+                listaHistorico.appendChild(vazio);
+            } else {
+                historico.forEach(h => {
+                    const item = document.createElement('div');
+                    item.className = 'historico-item';
+                    const statusSpan = document.createElement('span');
+                    statusSpan.textContent = h.status;
+                    const dataSpan = document.createElement('span');
+                    dataSpan.textContent = new Date(h.criado_em).toLocaleString('pt-BR');
+                    item.appendChild(statusSpan);
+                    item.appendChild(dataSpan);
+                    listaHistorico.appendChild(item);
+                });
+            }
 
             document.getElementById('order-modal').classList.add('active');
         };
