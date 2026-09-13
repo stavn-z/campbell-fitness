@@ -563,12 +563,23 @@
             }
         };
 
-        // Corta descricaoCompleta bem antes das instruções de lavagem/cuidados
-        // — esse trecho é igual em todo produto e já vem do texto
-        // compartilhado em configuracoes_loja, não faz sentido duplicar
-        // produto a produto dentro de "Composição e Especificações".
+        // A Dalu manda a mesma descrição de marketing (idêntica à descricaoSimples,
+        // que já preenche "Descrição Curta") colada na FRENTE da parte técnica de
+        // verdade dentro de descricaoCompleta — sem cortar isso também, a aba
+        // "Detalhes Técnicos" do site repetia a mesma descrição da aba "Descrição"
+        // antes das especificações de verdade. Corta tudo antes de "Especificações
+        // técnicas", se esse marcador existir (ele mesmo fica, é o início do
+        // conteúdo técnico). Depois, corta bem antes das instruções de
+        // lavagem/cuidados — esse trecho é igual em todo produto e já vem do texto
+        // compartilhado em configuracoes_loja, não faz sentido duplicar produto a
+        // produto dentro de "Composição e Especificações".
         function extrairComposicaoDeDescricaoCompleta(descricaoCompleta) {
-            const texto = descricaoCompleta || '';
+            let texto = descricaoCompleta || '';
+
+            const marcadorInicio = 'Especificações técnicas';
+            const idxInicio = texto.toLowerCase().indexOf(marcadorInicio.toLowerCase());
+            if (idxInicio !== -1) texto = texto.slice(idxInicio);
+
             const marcadores = ['Instruções de lavagem', 'Cuidados'];
             let indiceCorte = -1;
             marcadores.forEach(marcador => {
