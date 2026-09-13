@@ -771,8 +771,9 @@ async function initStore() {
     const render = (id, fn) => { const el = document.getElementById(id); if(el) el.innerHTML = products.filter(fn).map(window.createProductCard).join(''); }
 
     render('grid-destaques', ()=>true);
-    render('grid-macacoes', p=>p.category==='Macacões');
+    render('grid-macacoes', p=>p.category==='Macacões e Macaquinhos');
     render('grid-conjuntos-calca', p=>p.category==='Conjuntos de Calça e Legging');
     render('grid-conjuntos-shorts', p=>p.category==='Conjuntos de Shorts e Bermuda');
+    render('grid-pecas-avulsas', p=>p.category==='Peças Avulsas');
 }
 initStore();
