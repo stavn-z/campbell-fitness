@@ -42,6 +42,7 @@ header { background: rgba(14, 14, 17, 0.95); position: sticky; top: 0; z-index: 
 .header-flex { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); }
 .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
 .logo span { color: var(--primary); }
+.header-actions { display: flex; align-items: center; gap: 15px; }
 .nav-toggle { display: none; background: transparent; border: 1px solid var(--border-color); color: var(--text-white); width: 44px; height: 44px; border-radius: var(--radius-sm); font-size: 1.1rem; cursor: pointer; }
 nav ul { display: flex; gap: var(--space-lg); }
 nav a { font-family: var(--font-body); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; transition: 0.3s; }
@@ -88,13 +89,18 @@ nav a:hover { color: var(--primary); }
 .modal-content { background: var(--card-bg); width: 100%; max-width: 1000px; max-height: 90vh; border-radius: var(--radius-md); position: relative; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
 .close-modal { position: absolute; top: var(--space-sm); right: var(--space-sm); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; background: none; border: none; color: var(--text-white); cursor: pointer; z-index: 20; }
 
-.modal-gallery { background: var(--surface-alt); display: flex; flex-direction: column; height: 100%; }
+/* min-width:0 evita o bug clássico do Grid/Flexbox: sem ele, o <img> (elemento
+   substituído) contribui sua largura intrínseca como tamanho mínimo pro
+   cálculo automático da coluna do grid — ignorando o width:100% — e a galeria
+   fica mais larga que o .modal-content, sendo cortada por overflow:hidden
+   (fotos/textos "descentralizados" no mobile, reportado em produção). */
+.modal-gallery { background: var(--surface-alt); display: flex; flex-direction: column; height: 100%; min-width: 0; }
 .main-modal-img { flex: 1; width: 100%; height: calc(100% - 90px); object-fit: contain; padding: var(--space-sm); }
 .thumbnail-row { height: 90px; display: flex; gap: var(--space-xs); padding: var(--space-sm); justify-content: center; width: 100%; background: var(--dark-bg); }
 .thumb { width: 56px; height: 56px; object-fit: contain; background: #000; cursor: pointer; border: 2px solid transparent; opacity: 0.6; border-radius: var(--radius-sm); }
 .thumb.active { border-color: var(--primary); opacity: 1; }
 
-.modal-details { padding: var(--space-xl); text-align: center; max-height: 90vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary) var(--card-bg); }
+.modal-details { padding: var(--space-xl); text-align: center; max-height: 90vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary) var(--card-bg); min-width: 0; }
 .modal-details::-webkit-scrollbar { width: 6px; }
 .modal-details::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: var(--radius-sm); }
 .modal-details h2 { font-size: 1.6rem; margin-bottom: var(--space-xs); line-height: 1.2; }
@@ -288,6 +294,17 @@ footer { background: var(--surface-alt); padding: var(--space-2xl) 0 var(--space
 
     /* "Destaques da Semana" etc. quase encostavam nos botões flutuantes fixos */
     .section-title h2 { font-size: 1.15rem; letter-spacing: 0.03em; }
+
+    /* nav-toggle (44px) + botão de login (ícone+texto+padding) + cart-icon (44px)
+       não cabiam ao lado da logo em telas de celular — o grupo estourava a
+       largura do header-flex (que não tem flex-wrap) e o cart-icon, por ser o
+       último item, saía da tela e ficava inacessível (clipado pelo
+       overflow-x:hidden do body). Reduzir o gap e colapsar o botão de login
+       pro mesmo formato ícone-only 44x44 do nav-toggle/cart-icon resolve sem
+       mexer no layout do resto do header. */
+    .header-actions { gap: var(--space-xs); }
+    .btn-login-header { padding: 0 !important; width: 44px; justify-content: center; }
+    .btn-login-header .login-label { display: none; }
 }
 
 /* --- AJUSTES DE INPUT NUMÉRICO --- */

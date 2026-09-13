@@ -149,7 +149,10 @@ window.enviarLoginEmail = async function() {
 
             window.userLogado = data.user;
             const loginBtn = document.getElementById('login-btn');
-            if (loginBtn) loginBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${nome.split(' ')[0]}`;
+            if (loginBtn) {
+                loginBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> <span class="login-label">${nome.split(' ')[0]}</span>`;
+                loginBtn.setAttribute('aria-label', nome.split(' ')[0]);
+            }
             showToast("Conta criada", `Bem-vindo(a), ${nome.split(' ')[0]}!`);
         } else {
             const { data, error } = await window.supabase.auth.signInWithPassword({ email, password: senha });
@@ -404,7 +407,10 @@ window.saveUserProfile = async function() {
         // o nome salvo tem prioridade sobre o do Google em qualquer lugar
         // que ele apareça no site.
         const loginBtn = document.getElementById('login-btn');
-        if (loginBtn) loginBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${name.split(' ')[0]}`;
+        if (loginBtn) {
+            loginBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> <span class="login-label">${name.split(' ')[0]}</span>`;
+            loginBtn.setAttribute('aria-label', name.split(' ')[0]);
+        }
         if (document.getElementById('client-name')) document.getElementById('client-name').value = name;
 
         showToast("Salvo", "Seus dados foram atualizados!");
