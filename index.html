@@ -36,17 +36,20 @@
             </nav>
             
             <div class="header-actions">
-                <button class="nav-toggle" onclick="toggleMobileNav()" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+                <button class="nav-toggle" onclick="toggleMobileNav()" aria-label="Abrir menu">
+                    <i class="fa-solid fa-bars"></i>
+                    <span class="nav-toggle-label">Menu</span>
+                </button>
                 <div style="position: relative;">
                     <button id="login-btn" onclick="abrirModalLogin()" class="btn-login-header" aria-label="Entrar" style="background:transparent; border:1px solid var(--primary); color:white; padding:12px 16px; min-height:44px; border-radius:22px; cursor:pointer; font-size:0.8rem; display:flex; align-items:center; gap:8px; box-sizing:border-box;">
                         <i class="fa-solid fa-right-to-bracket"></i> <span class="login-label">Entrar</span>
                     </button>
-                    
+
                     <div id="user-menu" class="user-menu">
                         <div class="user-menu-header">Minha Conta</div>
                         <button onclick="openProfileModal()"><i class="fa-solid fa-user-pen"></i> Meus Dados</button>
                         <button onclick="openMyOrders()"><i class="fa-solid fa-box-open"></i> Meus Pedidos</button>
-                        
+
                         <div id="admin-area" style="display: none;">
                             <div class="user-menu-header" style="color: var(--primary); margin-top: 5px; border-top: 1px solid #333; padding-top: 10px;">Administração</div>
                             <button onclick="window.open('painel-pedidos.html', '_blank')"><i class="fa-solid fa-list-check"></i> Kanban de Pedidos</button>
@@ -58,8 +61,11 @@
                 </div>
 
                 <div class="cart-icon" onclick="toggleCart()">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    <span id="cart-count">0</span>
+                    <span class="cart-icon-wrap">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <span id="cart-count">0</span>
+                    </span>
+                    <span class="cart-icon-label">Carrinho</span>
                 </div>
             </div>
         </div>

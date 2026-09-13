@@ -44,10 +44,14 @@ header { background: rgba(14, 14, 17, 0.95); position: sticky; top: 0; z-index: 
 .logo span { color: var(--primary); }
 .header-actions { display: flex; align-items: center; gap: 15px; }
 .nav-toggle { display: none; background: transparent; border: 1px solid var(--border-color); color: var(--text-white); width: 44px; height: 44px; border-radius: var(--radius-sm); font-size: 1.1rem; cursor: pointer; }
+/* Labels só existem visualmente na bottom nav do mobile (≤599px, ver media
+   query abaixo) — no header normal (tablet/desktop) ficam escondidas. */
+.nav-toggle-label, .cart-icon-label { display: none; }
 nav ul { display: flex; gap: var(--space-lg); }
 nav a { font-family: var(--font-body); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; transition: 0.3s; }
 nav a:hover { color: var(--primary); }
 .cart-icon { position: relative; cursor: pointer; font-size: 1.2rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.cart-icon-wrap { display: inline-flex; }
 #cart-count { position: absolute; top: 2px; right: 2px; background: var(--primary); font-family: var(--font-body); font-weight: 700; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; }
 
 .hero { height: 80vh; min-height: 480px; background: linear-gradient(rgba(14,14,17,0.5), rgba(14,14,17,0.5)), url('https://images.unsplash.com/photo-1518310383802-640c2de311b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover; display: flex; align-items: center; justify-content: center; text-align: center; }
@@ -295,16 +299,68 @@ footer { background: var(--surface-alt); padding: var(--space-2xl) 0 var(--space
     /* "Destaques da Semana" etc. quase encostavam nos botões flutuantes fixos */
     .section-title h2 { font-size: 1.15rem; letter-spacing: 0.03em; }
 
-    /* nav-toggle (44px) + botão de login (ícone+texto+padding) + cart-icon (44px)
-       não cabiam ao lado da logo em telas de celular — o grupo estourava a
-       largura do header-flex (que não tem flex-wrap) e o cart-icon, por ser o
-       último item, saía da tela e ficava inacessível (clipado pelo
-       overflow-x:hidden do body). Reduzir o gap e colapsar o botão de login
-       pro mesmo formato ícone-only 44x44 do nav-toggle/cart-icon resolve sem
-       mexer no layout do resto do header. */
-    .header-actions { gap: var(--space-xs); }
-    .btn-login-header { padding: 0 !important; width: 44px; justify-content: center; }
+    /* Bottom nav (mesmo padrão do painel Lumina): nav-toggle + login/conta +
+       cart-icon saem do header e viram uma barra fixa no rodapé, com o botão
+       de conta flutuando elevado e circular no meio (mesmo problema de antes
+       — o grupo não cabia ao lado da logo — mas resolvido virando navegação
+       de app em vez de só encolher os botões). O header no mobile fica só
+       com a logo. */
+    .header-actions {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        display: flex; align-items: flex-end; justify-content: space-around;
+        gap: 0;
+        background: rgba(14, 14, 17, 0.95);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--border-color);
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        padding: var(--space-xs) var(--space-xs) calc(var(--space-xs) + env(safe-area-inset-bottom));
+        z-index: 190; /* abaixo do .cart-sidebar (200) — abrir o carrinho cobre a barra, como um app normal */
+    }
+
+    .nav-toggle, .cart-icon {
+        position: relative;
+        flex-direction: column; gap: 4px;
+        width: auto; height: auto; min-width: 56px;
+        border: none; background: transparent; border-radius: 0;
+        padding: 4px 0 2px;
+    }
+    .nav-toggle-label, .cart-icon-label {
+        display: block; font-family: var(--font-main); font-size: 0.6rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-gray);
+    }
+    .cart-icon-wrap { position: relative; }
+    #cart-count { top: -6px; right: -10px; }
+
+    /* Botão de conta: mesmo círculo elevado do avatar do Lumina — sobe acima
+       da barra com margin-top negativo e ganha um anel na cor da marca. */
+    .btn-login-header {
+        width: 56px !important; height: 56px !important; min-height: 56px !important;
+        margin-top: -22px;
+        border-radius: 50% !important;
+        border: 3px solid var(--dark-bg) !important;
+        box-shadow: 0 0 0 4px rgba(255, 0, 92, 0.35), 0 8px 20px rgba(0,0,0,0.45);
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+    /* Igual ao avatar do Lumina: só o ícone/foto no círculo, sem nome do
+       lado — o nome de quem tá logado já aparece dentro do menu que abre. */
     .btn-login-header .login-label { display: none; }
+
+    /* O menu "Minha Conta" some pra CIMA a partir do avatar elevado, em vez
+       de descer do canto — mesmo padrão do popover do Lumina. */
+    .user-menu {
+        top: auto; bottom: 100%; left: 50%; right: auto;
+        transform: translateX(-50%);
+        margin-bottom: var(--space-sm);
+        z-index: 220;
+    }
+
+    /* Botões flutuantes de WhatsApp/Instagram precisam subir pra não ficar
+       atrás da bottom nav. */
+    .floating-buttons { bottom: calc(77px + var(--space-sm) + env(safe-area-inset-bottom)); }
+
+    /* Conteúdo da página não pode ficar por baixo da barra fixa nova. */
+    body { padding-bottom: calc(77px + env(safe-area-inset-bottom)); }
 }
 
 /* --- AJUSTES DE INPUT NUMÉRICO --- */
