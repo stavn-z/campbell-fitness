@@ -171,7 +171,11 @@
                 <textarea id="import-json-texto" class="import-textarea" placeholder='{"nome": "...", "preco": 0, "descricaoSimples": "...", "descricaoCompleta": "...", "tamanhos": [{"tamanho": "P", "disponivel": true}], "imagens": ["https://..."]}'></textarea>
             </div>
 
-            <p style="font-size:0.75rem; color:var(--text-gray); margin-top:-6px; margin-bottom:12px;">Usa a mesma Margem de Multiplicação configurada acima, em "Importar do Fornecedor".</p>
+            <div class="form-group" style="max-width: 220px;">
+                <label>Margem de Multiplicação</label>
+                <input type="number" id="import-margem-json" step="0.1" min="1" value="2.0">
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-gray); margin-top:-6px; margin-bottom:12px;">Mesmo valor da margem usada em "Importar do Fornecedor" — mudar aqui atualiza lá também.</p>
 
             <p id="import-json-status" style="font-size:0.85rem; margin-bottom:10px; min-height:1em;"></p>
 
@@ -366,14 +370,29 @@
         });
 
         // Margem de multiplicação — persiste em localStorage pra não precisar
-        // redigitar toda vez que for importar um produto novo.
+        // redigitar toda vez que for importar um produto novo. Existe um
+        // <input> por seção (import-margem na de IA, import-margem-json na
+        // do JSON Dalu) pra ficar editável nas duas sem precisar rolar até a
+        // outra, mas é a mesma margem — sincronizados manualmente aqui, já
+        // que são dois elementos DOM distintos, não um componente compartilhado.
+        // processarImportacao()/processarJsonFornecedor() só leem margemInput,
+        // então a sincronia garante que editar em qualquer um dos dois reflete
+        // no valor que as duas funções de fato usam.
         const MARGEM_STORAGE_KEY = 'campbell_margem_multiplicacao';
         const margemInput = document.getElementById('import-margem');
+        const margemInputJson = document.getElementById('import-margem-json');
         const margemSalva = localStorage.getItem(MARGEM_STORAGE_KEY);
-        if (margemSalva) margemInput.value = margemSalva;
-        margemInput.addEventListener('input', () => {
-            if (margemInput.value) localStorage.setItem(MARGEM_STORAGE_KEY, margemInput.value);
-        });
+        if (margemSalva) { margemInput.value = margemSalva; margemInputJson.value = margemSalva; }
+        function sincronizarMargem(origem, destino) {
+            origem.addEventListener('input', () => {
+                if (origem.value) {
+                    localStorage.setItem(MARGEM_STORAGE_KEY, origem.value);
+                    destino.value = origem.value;
+                }
+            });
+        }
+        sincronizarMargem(margemInput, margemInputJson);
+        sincronizarMargem(margemInputJson, margemInput);
 
         // Mapeia os tamanhos que a IA devolve pro conjunto fixo de tamanhos do
         // formulário (P/M/G/GG/U) — o que não bater é ignorado, já que o form
