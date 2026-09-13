@@ -317,6 +317,22 @@ footer { background: var(--surface-alt); padding: var(--space-2xl) 0 var(--space
         z-index: 190; /* abaixo do .cart-sidebar (200) — abrir o carrinho cobre a barra, como um app normal */
     }
 
+    /* Menu de categorias agora sobe do rodapé (perto do botão MENU da bottom
+       nav) em vez de cair do topo do header — o gatilho mudou de lugar, o
+       menu tinha que acompanhar. Mesma classe/JS de antes (nav.mobile-open),
+       só troca a animação de max-height por um slide vertical. */
+    nav {
+        position: fixed; top: auto; bottom: 0; left: 0; right: 0;
+        max-height: none; overflow: hidden;
+        border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        padding-bottom: calc(77px + env(safe-area-inset-bottom));
+        z-index: 195;
+    }
+    nav.mobile-open { max-height: none; transform: translateY(0); }
+
     .nav-toggle, .cart-icon {
         position: relative;
         flex-direction: column; gap: 4px;
@@ -332,13 +348,17 @@ footer { background: var(--surface-alt); padding: var(--space-2xl) 0 var(--space
     #cart-count { top: -6px; right: -10px; }
 
     /* Botão de conta: mesmo círculo elevado do avatar do Lumina — sobe acima
-       da barra com margin-top negativo e ganha um anel na cor da marca. */
+       da barra com margin-top negativo. Fundo sólido na cor da marca (em vez
+       do fundo transparente do botão original, que ficava preto por cima da
+       barra escura) deixa claro que é um botão de "Entrar"/conta, não só um
+       ícone solto. */
     .btn-login-header {
         width: 56px !important; height: 56px !important; min-height: 56px !important;
         margin-top: -22px;
         border-radius: 50% !important;
+        background: var(--primary) !important;
         border: 3px solid var(--dark-bg) !important;
-        box-shadow: 0 0 0 4px rgba(255, 0, 92, 0.35), 0 8px 20px rgba(0,0,0,0.45);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.45);
         justify-content: center;
         font-size: 1.3rem;
     }
