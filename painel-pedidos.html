@@ -160,6 +160,12 @@
         .card-phone { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .card-desc { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: var(--space-sm); }
 
+        /* Mini-mapa do card — mesmo embed sem API key do modal de detalhes,
+           só que menor e sempre visível na miniatura (loading="lazy" adia o
+           carregamento pros cards fora da área visível, já que cada um é um
+           iframe de verdade rodando o Google Maps embed). */
+        .card-map { width: 100%; height: 90px; border: none; border-radius: var(--radius-sm); margin-bottom: var(--space-sm); display: block; pointer-events: none; }
+
         .card-divider { border-top: 1px solid var(--border-primary); margin-bottom: var(--space-sm); }
 
         .card-footer { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -566,6 +572,7 @@
                         <h4 class="card-title">Pedido <span class="c-idcurto"></span></h4>
                         <p class="card-phone"><i class="fa-brands fa-whatsapp"></i> <span class="c-telefone"></span></p>
                         <p class="card-desc c-qtd"></p>
+                        <iframe class="card-map" loading="lazy" title="Localização do cliente" style="display:none;"></iframe>
                         <div class="card-divider"></div>
                         <div class="card-footer">
                             <img class="card-thumb">
@@ -588,6 +595,14 @@
                     }
                     card.querySelector('.c-qtd').textContent = `${qtdTotal} ${qtdTotal === 1 ? 'item' : 'itens'}`;
                     card.querySelector('.card-thumb').src = thumb;
+
+                    // Mesma regra do mapa do modal de detalhes: só "Entrega" com
+                    // endereço preenchido tem o que mostrar no mini-mapa do card.
+                    if (p.tipo_entrega !== 'Retirada' && p.cliente_endereco) {
+                        const cardMap = card.querySelector('.card-map');
+                        cardMap.src = `https://www.google.com/maps?q=${encodeURIComponent(p.cliente_endereco)}&output=embed`;
+                        cardMap.style.display = 'block';
+                    }
                     card.querySelector('.c-total').textContent = `R$ ${totalNum.toFixed(2).replace('.', ',')}`;
 
                     const quickActions = card.querySelector('.quick-actions');
