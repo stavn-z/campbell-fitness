@@ -577,6 +577,18 @@
             return (indiceCorte === -1 ? texto : texto.slice(0, indiceCorte)).trim();
         }
 
+        // Alguns produtos da Dalu vêm com o tamanho grudado no final do nome
+        // (ex: "Macacão Fit - G", "Top Joy - GG") — tira isso do "Nome do
+        // Produto" mesmo que o JSON já venha limpo, como camada extra de
+        // segurança (o tamanho de verdade é escolhido via os checkboxes de
+        // tamanho/estoque, não deveria duplicar dentro do nome). Ordem dos
+        // alternados na regex importa: tokens maiores antes dos menores que
+        // são prefixo deles (XGG antes de XG antes de G, GG antes de G, PP
+        // antes de P), senão a alternância para no prefixo mais curto.
+        function removerSufixoTamanhoDoNome(nome) {
+            return (nome || '').replace(/\s*-\s*(XGG|XG|GG|PP|G|M|P|Único|Unico|U)\s*$/i, '').trim();
+        }
+
         window.processarJsonFornecedor = async function(btn) {
             const textoJson = document.getElementById('import-json-texto').value.trim();
             const statusEl = document.getElementById('import-json-status');
@@ -616,7 +628,7 @@
 
             // Texto/preço/tamanhos não dependem de rede — preenche tudo isso
             // já, antes de partir pro download (mais lento) das imagens.
-            document.getElementById('name').value = dados.nome;
+            document.getElementById('name').value = removerSufixoTamanhoDoNome(dados.nome);
             document.getElementById('desc').value = dados.descricaoSimples || '';
             document.getElementById('composicao').value = extrairComposicaoDeDescricaoCompleta(dados.descricaoCompleta);
             document.getElementById('price').value = (dados.preco * margem).toFixed(2);
