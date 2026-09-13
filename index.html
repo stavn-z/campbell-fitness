@@ -407,12 +407,22 @@
                 const primeiroNome = nomeExibido.split(' ')[0];
                 btn.innerHTML = `<i class="fa-solid fa-user-check"></i> <span class="login-label">${primeiroNome}</span>`;
                 btn.setAttribute('aria-label', primeiroNome);
-                btn.onclick = window.toggleUserProfile;
+                // Wrapper em vez de referência direta: handleAuthChange roda assim que
+                // o Supabase resolve a sessão, o que pra um visitante sem sessão salva
+                // é quase instantâneo — rápido o bastante pra rodar ANTES de script.js
+                // terminar de carregar (é adicionado dinamicamente depois, ver abaixo),
+                // deixando window.toggleUserProfile/abrirModalLogin ainda undefined
+                // nesse momento. Atribuir undefined a onclick vira null pra sempre (o
+                // atributo onclick="" original do botão já foi substituído), travando
+                // o botão. O wrapper adia a busca da função pro momento do clique, bem
+                // depois de script.js já ter carregado.
+                btn.onclick = () => window.toggleUserProfile();
 
                 if(document.getElementById('client-name')) document.getElementById('client-name').value = nomeExibido;
             } else {
-                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Entrar`;
-                btn.onclick = window.abrirModalLogin;
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span class="login-label">Entrar</span>`;
+                btn.setAttribute('aria-label', 'Entrar');
+                btn.onclick = () => window.abrirModalLogin();
                 adminArea.style.display = 'none'; // Esconde caso saia da conta
             }
         }
