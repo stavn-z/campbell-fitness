@@ -328,6 +328,17 @@
 
                 <p style="margin-top:15px; color:var(--text-secondary); font-size:0.9rem;"><i class="fa-solid fa-location-dot"></i> <span id="m-address">Endereço...</span></p>
 
+                <!-- Mapa via iframe do Google Maps sem API key (google.com/maps?q=...&output=embed)
+                     — o Maps JavaScript/Embed API "oficial" exige conta de faturamento (cartão) no
+                     Google Cloud mesmo dentro da cota gratuita, o mesmo problema que motivou usar
+                     Supabase Storage em vez de Firebase Storage neste projeto. Essa rota antiga não
+                     pede chave nenhuma; o próprio Google geocodifica o texto do endereço. Só faz
+                     sentido pra "Entrega" com endereço preenchido — "Retirada" não tem endereço do
+                     cliente pra mostrar. -->
+                <div id="m-map-wrap" style="margin-top:10px; margin-bottom:15px; display:none;">
+                    <iframe id="m-map" title="Localização do cliente" width="100%" height="220" style="border:1px solid var(--border-primary); border-radius:var(--radius-lg); display:block;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
                 <div class="modal-products" id="m-products-list">
                     </div>
 
@@ -788,6 +799,19 @@
             document.getElementById('m-payment').innerText = p.pagamento;
             document.getElementById('m-total').innerText = `R$ ${(Number(p.total) || 0).toFixed(2)}`;
             document.getElementById('m-address').innerText = p.cliente_endereco || '';
+
+            // Mapa só faz sentido pra "Entrega" com endereço preenchido — em "Retirada"
+            // não há endereço do cliente pra apontar. encodeURIComponent() no texto livre
+            // do endereço evita que ele quebre a query string do iframe.
+            const mapWrap = document.getElementById('m-map-wrap');
+            const mapFrame = document.getElementById('m-map');
+            if (p.tipo_entrega !== 'Retirada' && p.cliente_endereco) {
+                mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(p.cliente_endereco)}&output=embed`;
+                mapWrap.style.display = 'block';
+            } else {
+                mapFrame.src = '';
+                mapWrap.style.display = 'none';
+            }
 
             // Renderiza produtos com foto no modal (via DOM, não innerHTML)
             const listaProdutos = document.getElementById('m-products-list');
