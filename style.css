@@ -350,30 +350,26 @@ footer { background: var(--surface-alt); padding: var(--space-2xl) 0 var(--space
     .cart-icon-wrap { position: relative; }
     #cart-count { top: -6px; right: -10px; }
 
-    /* Botão de conta: mesmo círculo elevado do avatar do Lumina — sobe acima
-       da barra com margin-top negativo. Fundo sólido na cor da marca (em vez
-       do fundo transparente do botão original, que ficava preto por cima da
-       barra escura) deixa claro que é um botão de "Entrar"/conta, não só um
-       ícone solto. */
+    /* Botão de conta: pílula elevada (sobe acima da barra com margin-top
+       negativo, mesma ideia do avatar circular do Lumina), mas com largura
+       automática em vez de um círculo fixo de 56px — precisa comportar
+       ícone + a palavra "ENTRAR" (ou o primeiro nome, quando logado) lado a
+       lado sem cortar. Fundo sólido na cor da marca (em vez do fundo
+       transparente do botão original, que ficava preto por cima da barra
+       escura) deixa claro que é um botão de "Entrar"/conta. */
     .btn-login-header {
-        width: 56px !important; height: 56px !important; min-height: 56px !important;
-        margin-top: -22px;
-        border-radius: 50% !important;
+        width: auto !important; height: 44px !important; min-height: 44px !important;
+        max-width: none;
+        margin-top: -14px;
+        padding: 0 var(--space-sm) !important;
+        border-radius: 22px !important;
         background: var(--primary) !important;
         border: 3px solid var(--dark-bg) !important;
         box-shadow: 0 8px 20px rgba(0,0,0,0.45);
-        /* O botão original tinha padding:12px 16px pra caber ícone+texto lado
-           a lado — sobrando só ~18px de área útil dentro do círculo de 56px,
-           insuficiente pro ícone sozinho (~21px), que acabava vazando pra
-           fora da bolinha. Zerado aqui porque agora é só o ícone, centralizado. */
-        padding: 0 !important;
-        overflow: hidden;
         justify-content: center;
-        font-size: 1.3rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
     }
-    /* Igual ao avatar do Lumina: só o ícone/foto no círculo, sem nome do
-       lado — o nome de quem tá logado já aparece dentro do menu que abre. */
-    .btn-login-header .login-label { display: none; }
 
     /* O menu "Minha Conta" some pra CIMA a partir do avatar elevado, em vez
        de descer do canto — mesmo padrão do popover do Lumina. */
