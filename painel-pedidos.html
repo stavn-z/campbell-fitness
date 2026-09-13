@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Painel Kanban</title>
     <link rel="icon" href="favicon/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
@@ -137,6 +137,11 @@
             position: absolute; top: 10px; right: 10px; color: var(--text-muted); cursor: grab;
             font-size: 0.85rem; padding: 4px; line-height: 1;
         }
+        /* Área de toque de 44x44 sem alterar o tamanho visual do ícone. */
+        .card-drag-handle::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px;
+            transform: translate(-50%, -50%);
+        }
         .card-drag-handle:active { cursor: grabbing; }
 
         .card-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-right: 22px; margin-bottom: 10px; }
@@ -196,7 +201,7 @@
             scrollbar-width: none; -ms-overflow-style: none;
         }
         .modal-box::-webkit-scrollbar { display: none; }
-        .close-btn { position: absolute; top: var(--space-sm); right: var(--space-md); background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+        .close-btn { position: absolute; top: var(--space-sm); right: var(--space-sm); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
         .modal-box h2 { font-size: 1.15rem; font-weight: 700; text-align: center; }
 
         .modal-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-primary); padding: var(--space-sm) 0; font-size: 0.9rem; }
